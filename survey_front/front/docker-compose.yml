@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  survey-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - sqlite_data:/app/prisma
+      - uploads:/app/public/uploads
+    environment:
+      - DATABASE_URL=file:./prisma/dev.db
+      - NEXTAUTH_SECRET=your-secret-key-here
+      - NEXTAUTH_URL=http://localhost:3000
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+  uploads:

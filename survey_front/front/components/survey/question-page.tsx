@@ -1,0 +1,165 @@
+'use client'
+
+import { useSurveyStore } from './survey-context'
+import { Button, Radio, Checkbox, Input, Rate, DatePicker } from 'antd'
+import { useState } from 'react'
+import { submitSurvey } from '@/action/submit-survey'
+import { useRouter } from 'next/navigation'
+
+export function QuestionPage() {
+  const survey = useSurveyStore((state) => state.survey)
+  const answers = useSurveyStore((state) => state.answers)
+  const userInfo = useSurveyStore((state) => state.userInfo)
+  const currentIndex = useSurveyStore((state) => state.currentQuestionIndex)
+  const nextQuestion = useSurveyStore((state) => state.nextQuestion)
+  const setAnswer = useSurveyStore((state) => state.setAnswer)
+  const setStep = useSurveyStore((state) => state.setStep)
+
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+
+  const question = survey.questions?.[currentIndex]
+  if (!question) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+          <h3 className="text-lg font-semibold mb-2 text-red-500">未找到该题目</h3>
+        </div>
+      </div>
+    )
+  }
+  const isLast = currentIndex === survey.questions.length - 1
+
+  const renderQuestion = () => {
+    const value = answers[question.id] ?? ''
+
+    const commonProps = {
+      value,
+      onChange: (val: any) => setAnswer(question.id, val),
+      style: { width: '100%' },
+    }
+
+
+    switch (question.type) {
+      case 'radio':
+        return (
+          <Radio.Group {...commonProps}>
+            {question.options.map((opt) => (
+              <Radio key={opt.id} value={opt.value} className="block mb-3">
+                {opt.label}
+              </Radio>
+            ))}
+          </Radio.Group>
+        )
+
+      case 'checkbox':
+        return (
+          <Checkbox.Group
+            {...commonProps}
+            value={Array.isArray(value) ? value : []}
+            onChange={(val) => setAnswer(question.id, val)}
+          >
+            {question.options.map((opt) => (
+              <Checkbox key={opt.id} value={opt.value} className="block mb-3">
+                {opt.label}
+              </Checkbox>
+            ))}
+          </Checkbox.Group>
+        )
+
+      case 'rating':
+        return (
+          <Rate
+            {...commonProps}
+            value={Number(value) || 0}
+            onChange={(val) => setAnswer(question.id, String(val))}
+          />
+        )
+
+      case 'date':
+        return (
+          <DatePicker
+            {...commonProps}
+            value={value ? new Date(value) : null}
+            onChange={(date) => setAnswer(question.id, date?.toISOString() || '')}
+            style={{ width: '100%' }}
+          />
+        )
+
+      default:
+        return (
+          <Input.TextArea
+            {...commonProps}
+            rows={4}
+            placeholder={question.placeholder || '请输入您的回答'}
+          />
+        )
+    }
+  }
+
+  const handleNext = async () => {
+    if (isLast) {
+      setLoading(true)
+      try {
+        const formData = new FormData()
+        formData.append('surveyId', survey.id)
+        formData.append('userInfo', JSON.stringify(userInfo))
+        formData.append('answers', JSON.stringify(answers))
+
+        await submitSurvey(formData)
+        setStep('thanks')
+      } catch (error) {
+        console.error('提交失败:', error)
+      } finally {
+        setLoading(false)
+      }
+    } else {
+      nextQuestion()
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+        <div className="mb-4">
+          <span className="text-sm text-gray-500">
+            问题 {currentIndex + 1} / {survey.questions.length}
+          </span>
+          <div className="mt-2 bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-blue-500 h-2 rounded-full transition-all"
+              style={{ width: `${((currentIndex + 1) / survey.questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <h3 className="text-lg font-semibold mb-2">
+          {question.required && <span className="text-red-500 mr-1">*</span>}
+          {question.title}
+        </h3>
+
+        <div className="mt-6">{renderQuestion()}</div>
+
+        <div className="mt-8 flex gap-3">
+          {currentIndex > 0 && (
+            <Button
+              onClick={() => useSurveyStore.setState({ currentQuestionIndex: currentIndex - 1 })}
+              className="flex-1"
+            >
+              上一题
+            </Button>
+          )}
+          <Button
+            type="primary"
+            onClick={handleNext}
+            loading={loading}
+            className="flex-1"
+            disabled={question.required && !answers[question.id]}
+          >
+            {isLast ? '提交' : '下一题'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
