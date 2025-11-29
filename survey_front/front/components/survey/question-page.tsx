@@ -31,33 +31,32 @@ export function QuestionPage() {
   const isLast = currentIndex === survey.questions.length - 1
 
   const renderQuestion = () => {
-    const value = answers[question.id] ?? ''
-
-    const commonProps = {
-      value,
-      onChange: (val: any) => setAnswer(question.id, val),
-      style: { width: '100%' },
-    }
-
+    let value = answers[question.id] ?? '';
 
     switch (question.type) {
       case 'radio':
+        // 保证 value 为字符串
+        if (typeof value !== 'string') value = '';
         return (
-          <Radio.Group {...commonProps}>
+          <Radio.Group
+            value={value}
+            onChange={e => setAnswer(question.id, e.target.value)}
+            style={{ width: '100%' }}
+          >
             {question.options.map((opt) => (
               <Radio key={opt.id} value={opt.value} className="block mb-3">
                 {opt.label}
               </Radio>
             ))}
           </Radio.Group>
-        )
+        );
 
       case 'checkbox':
         return (
           <Checkbox.Group
-            {...commonProps}
             value={Array.isArray(value) ? value : []}
             onChange={(val) => setAnswer(question.id, val)}
+            style={{ width: '100%' }}
           >
             {question.options.map((opt) => (
               <Checkbox key={opt.id} value={opt.value} className="block mb-3">
@@ -65,35 +64,29 @@ export function QuestionPage() {
               </Checkbox>
             ))}
           </Checkbox.Group>
-        )
+        );
 
       case 'rating':
         return (
           <Rate
-            {...commonProps}
             value={Number(value) || 0}
             onChange={(val) => setAnswer(question.id, String(val))}
-          />
-        )
-
-      case 'date':
-        return (
-          <DatePicker
-            {...commonProps}
-            value={value ? new Date(value) : null}
-            onChange={(date) => setAnswer(question.id, date?.toISOString() || '')}
             style={{ width: '100%' }}
           />
-        )
+        );
 
       default:
+        // 文本题只允许字符串
+        if (typeof value !== 'string') value = '';
         return (
           <Input.TextArea
-            {...commonProps}
+            value={value}
+            onChange={e => setAnswer(question.id, e.target.value)}
             rows={4}
             placeholder={question.placeholder || '请输入您的回答'}
+            style={{ width: '100%' }}
           />
-        )
+        );
     }
   }
 
