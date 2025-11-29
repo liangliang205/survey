@@ -29,6 +29,7 @@ interface QuestionInput {
 interface SurveyEditorProps {
   survey: any | null
   onSave: () => void
+  onChange?: (editingSurvey: any) => void
 }
 
 export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
@@ -36,6 +37,8 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
   const [activeTab, setActiveTab] = useState('basic')
   const [questions, setQuestions] = useState<QuestionInput[]>([])
   const [loading, setLoading] = useState(false)
+  // 获取 onChange
+  const onChange = (typeof arguments[0] === 'object' && 'onChange' in arguments[0]) ? arguments[0].onChange : undefined
 
   useEffect(() => {
     if (survey) {
@@ -56,9 +59,25 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
           placeholder: q.placeholder,
         }))
       )
+      // 初始化同步一次
+      if (onChange) {
+        onChange({
+          ...survey,
+          questions: survey.questions.map((q: any) => ({
+            id: q.id,
+            title: q.title,
+            type: q.type,
+            options: q.options || [],
+            order: q.order,
+            required: q.required,
+            placeholder: q.placeholder,
+          }))
+        })
+      }
     } else {
       form.resetFields()
       setQuestions([])
+      if (onChange) onChange(null)
     }
   }, [survey])
 
@@ -74,14 +93,29 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       required: true,
       placeholder: '',
     }
-    setQuestions([...questions, newQuestion])
+    const updated = [...questions, newQuestion]
+    setQuestions(updated)
     setActiveTab(`question-${questions.length}`)
+    if (onChange) {
+      onChange({
+        ...form.getFieldsValue(),
+        id: survey?.id || '',
+        questions: updated
+      })
+    }
   }
 
   const updateQuestion = (index: number, field: keyof QuestionInput, value: any) => {
     const updated = [...questions]
     updated[index] = { ...updated[index], [field]: value }
     setQuestions(updated)
+    if (onChange) {
+      onChange({
+        ...form.getFieldsValue(),
+        id: survey?.id || '',
+        questions: updated
+      })
+    }
   }
 
   const addOption = (questionIndex: number) => {
@@ -94,23 +128,51 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
     }
     updated[questionIndex].options = [...options, newOption]
     setQuestions(updated)
+    if (onChange) {
+      onChange({
+        ...form.getFieldsValue(),
+        id: survey?.id || '',
+        questions: updated
+      })
+    }
   }
 
   const updateOption = (qIndex: number, optIndex: number, field: 'label' | 'value', value: string) => {
     const updated = [...questions]
     updated[qIndex].options[optIndex][field] = value
     setQuestions(updated)
+    if (onChange) {
+      onChange({
+        ...form.getFieldsValue(),
+        id: survey?.id || '',
+        questions: updated
+      })
+    }
   }
 
   const deleteOption = (qIndex: number, optIndex: number) => {
     const updated = [...questions]
     updated[qIndex].options.splice(optIndex, 1)
     setQuestions(updated)
+    if (onChange) {
+      onChange({
+        ...form.getFieldsValue(),
+        id: survey?.id || '',
+        questions: updated
+      })
+    }
   }
 
   const deleteQuestion = (index: number) => {
     const updated = questions.filter((_, i) => i !== index)
     setQuestions(updated)
+    if (onChange) {
+      onChange({
+        ...form.getFieldsValue(),
+        id: survey?.id || '',
+        questions: updated
+      })
+    }
   }
 
   const moveQuestion = (index: number, direction: 'up' | 'down') => {
@@ -121,6 +183,13 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]]
     }
     setQuestions(updated)
+    if (onChange) {
+      onChange({
+        ...form.getFieldsValue(),
+        id: survey?.id || '',
+        questions: updated
+      })
+    }
   }
 
   const uploadProps: UploadProps = {
@@ -132,6 +201,13 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       if (info.file.status === 'done') {
         form.setFieldsValue({ bgImage: info.file.response.url })
         message.success('上传成功')
+        if (onChange) {
+          onChange({
+            ...form.getFieldsValue(),
+            id: survey?.id || '',
+            questions
+          })
+        }
       }
     },
   }
@@ -140,17 +216,25 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
     try {
       setLoading(true)
       const basicValues = await form.validateFields()
-      
+
       const formData = new FormData()
       formData.append('id', survey?.id || '')
       formData.append('title', basicValues.title)
       formData.append('description', basicValues.description || '')
       formData.append('isActive', String(basicValues.isActive))
       formData.append('bgImage', basicValues.bgImage || '')
-      
-      // 保存问卷基本信息
+      formData.append('questions', JSON.stringify(questions))
+      if (onChange) {
+        onChange({
+          ...form.getFieldsValue(),
+          id: survey?.id || '',
+          questions
+        })
+      }
+
+      // 保存问卷基本信息和问题
       const result = await saveSurvey(formData)
-      
+
       if (result.success) {
         // 保存问题（这里简化处理，实际应该调用专门的 API）
         message.success('保存成功')
@@ -163,6 +247,25 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
     }
   }
 
+  // const payload = {
+  //   id: survey?.id,
+  //   title,
+  //   description,
+  //   isActive,
+  //   bgImage,
+  //   questions: questionList.map((q) => ({
+  //     id: q.id || undefined,
+  //     title: q.title,
+  //     type: q.type,
+  //     order: q.order,
+  //     required: q.required,
+  //     placeholder: q.placeholder,
+  //     options: q.options || [],
+  //   })),
+  // }
+  // formData.append('questions', JSON.stringify(payload.questions))
+
+
   return (
     <div className="bg-white rounded-lg p-6">
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
@@ -171,7 +274,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
             <Form.Item name="bgImage" hidden>
               <Input />
             </Form.Item>
-            
+
             <Form.Item label="背景图片">
               <Upload {...uploadProps}>
                 <div className="flex flex-col items-center justify-center">
@@ -306,7 +409,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                 </Form>
               </Card>
             ))}
-            
+
             <Button type="dashed" onClick={addQuestion} icon={<PlusOutlined />} block>
               添加问题
             </Button>

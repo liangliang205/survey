@@ -13,6 +13,7 @@
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
     "@ant-design/nextjs-registry": "^1.0.2",
+    "@ant-design/plots": "^2.6.6",
     "@hookform/resolvers": "^3.3.2",
     "@prisma/client": "5.22.0",
     "antd": "^5.22.0",
@@ -20,6 +21,7 @@
     "exceljs": "^4.4.0",
     "framer-motion": "^10.16.5",
     "mime-types": "^2.1.35",
+    "nanoid": "^5.1.6",
     "next": "14.2.20",
     "next-auth": "5.0.0-beta.25",
     "prisma": "5.22.0",
@@ -29,6 +31,7 @@
     "react-hook-form": "^7.48.2",
     "tailwindcss": "^4.1.17",
     "tsx": "^4.20.6",
+    "xlsx": "^0.18.5",
     "zod": "^3.22.4",
     "zustand": "^5.0.8"
   },
