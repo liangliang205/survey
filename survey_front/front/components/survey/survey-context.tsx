@@ -5,11 +5,14 @@ import { persist } from 'zustand/middleware'
 import { SurveyWithQuestions, UserInfo } from '@/lib/types'
 import { z } from 'zod'
 import { useEffect } from 'react'
+import { useTranslation } from 'next-i18next'
 
-export const UserInfoSchema = z.object({
-  name: z.string().min(2, '姓名至少需要2个字符'),
-  phone: z.string().regex(/^1[3-9]\d{9}$/, '手机号格式不正确'),
-  email: z.string().email('邮箱格式不正确').or(z.literal('')).default(''),
+
+// 创建一个函数来返回带翻译的 schema，而不是直接定义它
+export const getUserInfoSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(2, t('name_min_length')),
+  phone: z.string().regex(/^1[3-9]\d{9}$/, t('invalid_phone_format')),
+  email: z.string().email(t('invalid_email_format')).or(z.literal('')).default(''),
   department: z.string().optional(),
 }).catchall(z.string().optional())
 

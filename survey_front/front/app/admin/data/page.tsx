@@ -5,10 +5,12 @@ import { useSearchParams } from 'next/navigation'
 import { get } from 'lodash'
 import { Card, Select, Empty, message, Button } from 'antd'
 import { Bar, Line, Pie } from '@ant-design/plots'
+import { useTranslation } from 'next-i18next'
 
 import * as XLSX from 'xlsx'
 
 export default function DataPage() {
+  const { t } = useTranslation('common')
   const search = useSearchParams()
   const [surveyId, setId] = useState<string | null>(search.get('id'))
   const [data, setData] = useState<any>(null)
@@ -20,7 +22,7 @@ export default function DataPage() {
     fetch('/api/admin/surveys')
       .then((r) => r.json())
       .then(setSurveys)
-      .catch(() => message.error('问卷列表加载失败'))
+      .catch(() => message.error(t('message.creation_failed')))
   }, [])
 
   // 获取选中问卷的数据
@@ -33,7 +35,7 @@ export default function DataPage() {
     fetch(`/api/admin/insight/${surveyId}`)
       .then((r) => r.json())
       .then((res) => setData(res))
-      .catch(() => message.error('加载失败'))
+      .catch(() => message.error(t('message.creation_failed')))
       .finally(() => setLoading(false))
   }, [surveyId])
 
@@ -42,14 +44,14 @@ export default function DataPage() {
 
     // 导出 Excel 方法
     const handleExportExcel = () => {
-      if (!data) return message.error('暂无数据可导出')
+      if (!data) return message.error(t('message.creation_failed'))
       const wb = XLSX.utils.book_new()
 
       // 总提交数和每日统计
       const dailySheet = XLSX.utils.json_to_sheet(
         Object.entries(dailyCount || {}).map(([date, count]) => ({ 日期: date, 提交数: count }))
       )
-      XLSX.utils.book_append_sheet(wb, dailySheet, '每日提交')
+      XLSX.utils.book_append_sheet(wb, dailySheet, t('data_page.daily_submissions'))
 
       // 题目统计
       if (Array.isArray(questionStats)) {
@@ -73,7 +75,7 @@ export default function DataPage() {
         const deptSheet = XLSX.utils.json_to_sheet(
           Object.entries(userStats.department).map(([dept, num]) => ({ 部门: dept, 数量: num }))
         )
-        XLSX.utils.book_append_sheet(wb, deptSheet, '部门分布')
+        XLSX.utils.book_append_sheet(wb, deptSheet, t('data_page.department_distribution'))
       }
 
       XLSX.writeFile(wb, `问卷数据_${surveyId}.xlsx`)
@@ -83,30 +85,30 @@ export default function DataPage() {
       <div className="space-y-6">
         <div className="flex gap-4 items-center mb-2">
           <Select
-            placeholder="请选择要查看的问卷"
+            placeholder={t('data_page.select_survey')}
             style={{ width: 300 }}
             value={surveyId}
             onChange={setId}
             loading={surveys.length === 0}
             allowClear
-            notFoundContent={surveys.length === 0 ? '加载中...' : '暂无问卷'}
+            notFoundContent={surveys.length === 0 ? `${t('loading')}...` : t('no_questions')}
           >
             {surveys.map((s: any) => (
               <Select.Option key={s.id} value={s.id}>{s.title}</Select.Option>
             ))}
           </Select>
           <Button type="primary" onClick={handleExportExcel} disabled={!data}>
-            导出 Excel
+            {t('data_page.export_excel')}
           </Button>
         </div>
 
         {!surveyId ? (
-          <Empty description="未选择问卷" />
+          <Empty description={t('data_page.no_survey_selected')} />
         ) : loading ? (
-          <div className="text-gray-400">数据加载中...</div>
+          <div className="text-gray-400">{t('data_page.loading_data')}</div>
         ) : (
           <>
-            <Card title={`总提交数：${totalSubmissions}`}>
+            <Card title={`${t('data_page.total_submissions')}：${totalSubmissions}`}>
               <Line
                 data={Object.entries(dailyCount || {}).map(([date, count]) => ({ date, count }))}
                 xField="date"
@@ -133,7 +135,7 @@ export default function DataPage() {
               if (q.type === 'rating') {
                 return (
                   <Card title={q.title} key={q.id}>
-                    <span className="block mb-2">平均分：{q.avg.toFixed(2)}</span>
+                    <span className="block mb-2">{t('data_page.average_score')}：{q.avg.toFixed(2)}</span>
                     <Bar
                       data={q.buckets}
                       xField="score"
@@ -157,7 +159,7 @@ export default function DataPage() {
               )
             })}
 
-            <Card title="部门分布">
+            <Card title={t('data_page.department_distribution')}>
               <Pie
                 data={Object.entries(userStats?.department || {}).map(([dept, num]) => ({
                   dept,

@@ -5,8 +5,10 @@ import { Button, Radio, Checkbox, Input, Rate, DatePicker } from 'antd'
 import { useState } from 'react'
 import { submitSurvey } from '@/action/submit-survey'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'next-i18next'
 
 export function QuestionPage() {
+  const { t } = useTranslation('common')
   const survey = useSurveyStore((state) => state.survey)
   const answers = useSurveyStore((state) => state.answers)
   const userInfo = useSurveyStore((state) => state.userInfo)
@@ -23,7 +25,7 @@ export function QuestionPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
-          <h3 className="text-lg font-semibold mb-2 text-red-500">未找到该题目</h3>
+          <h3 className="text-lg font-semibold mb-2 text-red-500">{t('question_not_found')}</h3>
         </div>
       </div>
     )
@@ -83,7 +85,7 @@ export function QuestionPage() {
             value={value}
             onChange={e => setAnswer(question.id, e.target.value)}
             rows={4}
-            placeholder={question.placeholder || '请输入您的回答'}
+            placeholder={question.placeholder || t('enter_your_answer')}
             style={{ width: '100%' }}
           />
         );
@@ -117,7 +119,7 @@ export function QuestionPage() {
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
         <div className="mb-4">
           <span className="text-sm text-gray-500">
-            问题 {currentIndex + 1} / {survey.questions.length}
+            {t('question_progress', { current: currentIndex + 1, total: survey.questions.length })}
           </span>
           <div className="mt-2 bg-gray-200 rounded-full h-2">
             <div
@@ -140,7 +142,7 @@ export function QuestionPage() {
               onClick={() => useSurveyStore.setState({ currentQuestionIndex: currentIndex - 1 })}
               className="flex-1"
             >
-              上一题
+              {t('previous')}
             </Button>
           )}
           <Button
@@ -150,7 +152,7 @@ export function QuestionPage() {
             className="flex-1"
             disabled={question.required && !answers[question.id]}
           >
-            {isLast ? '提交' : '下一题'}
+            {isLast ? t('submit') : t('next')}
           </Button>
         </div>
       </div>

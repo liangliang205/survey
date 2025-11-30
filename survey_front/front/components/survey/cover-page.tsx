@@ -3,8 +3,10 @@
 import Image from 'next/image'
 import { useSurveyStore } from './survey-context'
 import { Button } from 'antd'
+import { useTranslation } from 'next-i18next'
 
 export function CoverPage() {
+  const { t } = useTranslation('common')
   const survey = useSurveyStore((state) => state.survey)
   const setStep = useSurveyStore((state) => state.setStep)
 
@@ -26,7 +28,7 @@ export function CoverPage() {
           className="w-[320px] py-7 text-3xl font-bold tracking-widest rounded-full shadow-lg"
           onClick={() => setStep('userInfo')}
         >
-          开始填写
+          {t('start_filling')}
         </Button>
       </div>
     </div>

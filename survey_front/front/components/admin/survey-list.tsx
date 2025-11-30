@@ -5,8 +5,10 @@ import { Table, Button, Popconfirm, message, Space } from 'antd'
 import { EyeOutlined, QrcodeOutlined, DeleteOutlined } from '@ant-design/icons'
 import { deleteSurvey } from '@/action/delete-survey'
 import SurveyPreviewDrawer from './survey-preview-drawer'
+import { useTranslation } from 'next-i18next'
 
 export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
+  const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState<any[]>([])
 
@@ -22,20 +24,20 @@ export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
   const handleDelete = async (id: string) => {
     const res = await deleteSurvey(id)
     if (res.success) {
-      message.success('已删除')
+      message.success(t('message.success_created'))
       // 触发父组件刷新
       setData((prev) => prev.filter((s) => s.id !== id))
     } else {
-      message.error(res.error || '删除失败')
+      message.error(res.error || t('message.creation_failed'))
     }
   }
   const [previewId, setPreviewId] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
   const columns = [
-    { title: '标题', dataIndex: 'title', ellipsis: true },
-    { title: '状态', dataIndex: 'isActive', render: (v: boolean) => (v ? '启用' : '停用') },
+    { title: t('survey_title'), dataIndex: 'title', ellipsis: true },
+    { title: t('is_active'), dataIndex: 'isActive', render: (v: boolean) => (v ? t('is_active') : t('not_generated')) },
     {
-      title: '答卷',
+      title: t('data_page.total_submissions'),
       dataIndex: '_count',
       render: (r: any) => (
         <span className="text-blue-600 font-bold">{r.submissions || 0}</span>
@@ -43,7 +45,7 @@ export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
     },
     // 列表 columns 追加：
     {
-      title: '预览',
+      title: t('preview'),
       key: 'preview',
       render: (_, r) => (
         <Button
@@ -54,12 +56,12 @@ export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
             setOpen(true)
           }}
         >
-          查看内容
+          {t('preview')}
         </Button>
       ),
     },
     {
-      title: '操作',
+      title: t('operations'),
       key: 'action',
       width: 140,
       render: (_, record) => (
@@ -75,7 +77,7 @@ export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
             onClick={() => window.open(`/admin/qrcode?id=${record.id}`, '_blank')}
           />
           <Popconfirm
-            title="确定删除吗？所有答卷会一并删除。"
+            title={t('delete_confirm')}
             onConfirm={() => handleDelete(record.id)}
           >
             <Button danger icon={<DeleteOutlined />} size="small" />

@@ -21,17 +21,17 @@ export default function AdminLayout({
     {
       key: 'dashboard',
       icon: <FormOutlined />,
-      label: <Link href="/admin">问卷管理</Link>,
+      label: <Link href="/admin">{t('existing_surveys')}</Link>,
     },
     {
       key: 'data',
       icon: <BarChartOutlined />,
-      label: <Link href="/admin/data">数据洞察</Link>,
+      label: <Link href="/admin/data">{t('data_page.select_survey')}</Link>,
     },
     {
       key: 'qrcode',
       icon: <QrcodeOutlined />,
-      label: <Link href="/admin/qrcode">二维码</Link>,
+      label: <Link href="/admin/qrcode">{t('qrcode')}</Link>,
     },
   ]
 
@@ -54,7 +54,7 @@ export default function AdminLayout({
     <Layout className="min-h-screen">
       <Sider width={200} theme="light">
         <div className="flex items-center justify-center h-16 border-b">
-          <h2 className="text-lg font-bold">管理后台</h2>
+          <h2 className="text-lg font-bold">{t('basic_settings')}</h2>
         </div>
         <Menu mode="inline" items={menuItems} defaultSelectedKeys={['dashboard']} />
       </Sider>
@@ -68,7 +68,7 @@ export default function AdminLayout({
               </Button>
             </Dropdown>
             <UserOutlined />
-            <span>管理员</span>
+            <span>{t('admin')}</span>
           </div>
         </Header>
         <Content className="p-6 bg-gray-50">{children}</Content>

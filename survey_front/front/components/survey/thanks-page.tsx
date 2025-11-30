@@ -4,8 +4,10 @@ import { Button } from 'antd'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useSurveyStore } from './survey-context'
+import { useTranslation } from 'next-i18next'
 
 export function ThanksPage() {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const survey = useSurveyStore((state) => state.survey)
 
@@ -34,9 +36,9 @@ export function ThanksPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">提交成功！</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('submission_success')}</h2>
             <p className="text-gray-600 mb-6">
-              {survey?.title ? `感谢您的参与！"${survey.title}"问卷已提交成功。` : '感谢您的参与！问卷已提交成功。'}
+              {survey?.title ? t('thank_you_for_participation_with_title', { title: survey.title }) : t('thank_you_for_participation')}
             </p>
           </div>
         </motion.div>
@@ -48,7 +50,7 @@ export function ThanksPage() {
           className="space-y-3"
         >
           <Button type="primary" block size="large" onClick={handleBackToHome}>
-            返回首页
+            {t('back_to_home')}
           </Button>
         </motion.div>
       </div>
