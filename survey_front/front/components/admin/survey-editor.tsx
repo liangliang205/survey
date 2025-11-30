@@ -13,7 +13,6 @@ const { Option } = Select
 
 interface OptionInput {
   id: string
-  label: string
   value: string
 }
 
@@ -120,8 +119,8 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       title: '',
       type: 'radio',
       options: [
-        { id: `opt-${Date.now()}-1`, label: '选项1', value: 'option1' },
-        { id: `opt-${Date.now()}-2`, label: '选项2', value: 'option2' },
+        { id: `opt-${Date.now()}-1`, value: '选项1' },
+        { id: `opt-${Date.now()}-2`, value: '选项2' },
       ],
       order: questions.length,
       required: true,
@@ -507,8 +506,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                                   ...(question.options || []),
                                   { 
                                     id: `opt-${Date.now()}`, 
-                                    label: `${t('option')} ${(question.options || []).length + 1}`, 
-                                    value: `option${(question.options || []).length + 1}` 
+                                    value: `${t('option')} ${(question.options || []).length + 1}` 
                                   }
                                 ]
                               })}
@@ -520,15 +518,6 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                           <div className="space-y-2">
                             {(question.options || []).map((option, optIndex) => (
                               <Space key={option.id} className="w-full">
-                                <Input
-                                  value={option.label}
-                                  onChange={e => {
-                                    const newOptions = [...(question.options || [])]
-                                    newOptions[optIndex] = { ...option, label: e.target.value }
-                                    updateQuestion(index, { options: newOptions })
-                                  }}
-                                  placeholder={t('option_label')}
-                                />
                                 <Input
                                   value={option.value}
                                   onChange={e => {

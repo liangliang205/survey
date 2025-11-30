@@ -76,7 +76,6 @@ export async function saveSurvey(id: string | null, data: any) {
           options: question.options
             ? {
                 create: question.options.map((opt: any, optIndex: number) => ({
-                  label: opt.label,
                   value: opt.value,
                   order: optIndex,
                 })),

@@ -47,7 +47,7 @@ export function QuestionPage() {
           >
             {question.options.map((opt) => (
               <Radio key={opt.id} value={opt.value} className="block mb-3">
-                {opt.label}
+                {opt.value}
               </Radio>
             ))}
           </Radio.Group>
@@ -62,7 +62,7 @@ export function QuestionPage() {
           >
             {question.options.map((opt) => (
               <Checkbox key={opt.id} value={opt.value} className="block mb-3">
-                {opt.label}
+                {opt.value}
               </Checkbox>
             ))}
           </Checkbox.Group>

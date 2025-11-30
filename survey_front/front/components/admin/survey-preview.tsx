@@ -66,7 +66,7 @@ export function SurveyPreview({ survey }: SurveyPreviewProps) {
                   <Space direction="vertical">
                     {q.options?.map((opt: any) => (
                       <Radio key={opt.id} value={opt.value}>
-                        {opt.label}
+                        {opt.value}
                       </Radio>
                     ))}
                   </Space>
@@ -78,7 +78,7 @@ export function SurveyPreview({ survey }: SurveyPreviewProps) {
                   <Space direction="vertical">
                     {q.options?.map((opt: any) => (
                       <Checkbox key={opt.id} value={opt.value}>
-                        {opt.label}
+                        {opt.value}
                       </Checkbox>
                     ))}
                   </Space>

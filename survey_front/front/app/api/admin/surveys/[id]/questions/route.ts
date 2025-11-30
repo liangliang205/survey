@@ -45,7 +45,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
             placeholder: q.placeholder,
             options: {
               create: q.options.map((opt: any, optIndex: number) => ({
-                label: opt.label,
                 value: opt.value,
                 order: optIndex,
               })),

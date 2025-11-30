@@ -41,139 +41,128 @@ export default function DataPage() {
 
   const { totalSubmissions, dailyCount, questionStats, userStats } = data || {}
 
-
-    // 导出 Excel 方法
-    const handleExportExcel = () => {
-      if (!data) return message.error(t('message.creation_failed'))
-      const wb = XLSX.utils.book_new()
-
-      // 总提交数和每日统计
-      const dailySheet = XLSX.utils.json_to_sheet(
-        Object.entries(dailyCount || {}).map(([date, count]) => ({ 日期: date, 提交数: count }))
-      )
-      XLSX.utils.book_append_sheet(wb, dailySheet, t('data_page.daily_submissions'))
-
-      // 题目统计
-      if (Array.isArray(questionStats)) {
-        questionStats.forEach((q: any) => {
-          let sheet
-          if (q.type === 'radio' || q.type === 'checkbox') {
-            sheet = XLSX.utils.json_to_sheet(
-              Object.entries(q.counts).map(([label, value]) => ({ 选项: label, 数量: value }))
-            )
-          } else if (q.type === 'rating') {
-            sheet = XLSX.utils.json_to_sheet(q.buckets.map((b: any) => ({ 分数: b.score, 数量: b.count })))
-          } else {
-            sheet = XLSX.utils.json_to_sheet(q.samples.map((txt: string, i: number) => ({ 序号: i + 1, 内容: txt })))
-          }
-          XLSX.utils.book_append_sheet(wb, sheet, q.title)
-        })
-      }
-
-      // 部门分布
-      if (userStats?.department) {
-        const deptSheet = XLSX.utils.json_to_sheet(
-          Object.entries(userStats.department).map(([dept, num]) => ({ 部门: dept, 数量: num }))
-        )
-        XLSX.utils.book_append_sheet(wb, deptSheet, t('data_page.department_distribution'))
-      }
-
-      XLSX.writeFile(wb, `问卷数据_${surveyId}.xlsx`)
+  // 使用后端API导出完整数据（包含个人信息）
+  const handleExportExcel = async () => {
+    if (!surveyId) return message.error(t('message.creation_failed'))
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/export?surveyId=${surveyId}`)
+      if (!response.ok) throw new Error('导出失败')
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `问卷数据_${surveyId}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+    } catch (error) {
+      message.error(t('message.creation_failed'))
+    } finally {
+      setLoading(false)
     }
+  }
 
-    return (
-      <div className="space-y-6">
-        <div className="flex gap-4 items-center mb-2">
-          <Select
-            placeholder={t('data_page.select_survey')}
-            style={{ width: 300 }}
-            value={surveyId}
-            onChange={setId}
-            loading={surveys.length === 0}
-            allowClear
-            notFoundContent={surveys.length === 0 ? `${t('loading')}...` : t('no_questions')}
-          >
-            {surveys.map((s: any) => (
-              <Select.Option key={s.id} value={s.id}>{s.title}</Select.Option>
-            ))}
-          </Select>
-          <Button type="primary" onClick={handleExportExcel} disabled={!data}>
-            {t('data_page.export_excel')}
-          </Button>
-        </div>
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-4 items-center mb-2">
+        <Select
+          placeholder={t('data_page.select_survey')}
+          style={{ width: 300 }}
+          value={surveyId}
+          onChange={setId}
+          loading={surveys.length === 0}
+          allowClear
+          notFoundContent={surveys.length === 0 ? `${t('loading')}...` : t('no_questions')}
+        >
+          {surveys.map((s: any) => (
+            <Select.Option key={s.id} value={s.id}>{s.title}</Select.Option>
+          ))}
+        </Select>
+        <Button type="primary" onClick={handleExportExcel} disabled={!data}>
+          {t('data_page.export_excel')}
+        </Button>
+      </div>
 
-        {!surveyId ? (
-          <Empty description={t('data_page.no_survey_selected')} />
-        ) : loading ? (
-          <div className="text-gray-400">{t('data_page.loading_data')}</div>
-        ) : (
-          <>
-            <Card title={`${t('data_page.total_submissions')}：${totalSubmissions}`}>
-              <Line
-                data={Object.entries(dailyCount || {}).map(([date, count]) => ({ date, count }))}
-                xField="date"
-                yField="count"
-                height={260}
-              />
-            </Card>
+      {!surveyId ? (
+        <Empty description={t('data_page.no_survey_selected')} />
+      ) : loading ? (
+        <div className="text-gray-400">{t('data_page.loading_data')}</div>
+      ) : (
+        <>
+          <Card title={`${t('data_page.total_submissions')}：${totalSubmissions}`}>
+            <Line
+              data={Object.entries(dailyCount || {}).map(([date, count]) => ({ date, count }))}
+              xField="date"
+              yField="count"
+              height={260}
+            />
+          </Card>
 
-            {questionStats?.map((q: any) => {
-              if (q.type === 'radio' || q.type === 'checkbox') {
-                return (
-                  <Card title={q.title} key={q.id}>
-                    <Pie
-                      data={Object.entries(q.counts).map(([label, value]) => ({ label, value }))}
-                      angleField="value"
-                      colorField="label"
-                      innerRadius={0.4}
-                      label={false}
-                      height={260}
-                    />
-                  </Card>
-                )
-              }
-              if (q.type === 'rating') {
-                return (
-                  <Card title={q.title} key={q.id}>
-                    <span className="block mb-2">{t('data_page.average_score')}：{q.avg.toFixed(2)}</span>
-                    <Bar
-                      data={q.buckets}
-                      xField="score"
-                      yField="count"
-                      height={260}
-                      columnStyle={{ fill: '#1890ff' }}
-                    />
-                  </Card>
-                )
-              }
+          {questionStats?.map((q: any) => {
+            if (q.type === 'radio' || q.type === 'checkbox') {
               return (
                 <Card title={q.title} key={q.id}>
-                  <div className="max-h-40 overflow-y-auto">
-                    {q.samples.map((txt: string, i: number) => (
-                      <p key={i} className="border-b pb-1 mb-1 text-gray-600">
-                        {txt}
-                      </p>
-                    ))}
-                  </div>
+                  <Pie
+                    data={Object.entries(q.counts).map(([label, value]) => ({ label, value }))}
+                    angleField="value"
+                    colorField="label"
+                    innerRadius={0.4}
+                    label={false}
+                    height={260}
+                  />
                 </Card>
               )
-            })}
+            }
+            if (q.type === 'rating') {
+              return (
+                <Card title={q.title} key={q.id}>
+                  <span className="block mb-2">{t('data_page.average_score')}：{q.avg.toFixed(2)}</span>
+                  <Bar
+                    data={q.buckets}
+                    xField="score"
+                    yField="count"
+                    height={260}
+                    columnStyle={{ fill: '#1890ff' }}
+                  />
+                </Card>
+              )
+            }
+            return (
+              <Card title={q.title} key={q.id}>
+                <div className="max-h-40 overflow-y-auto">
+                  {q.samples.map((txt: string, i: number) => (
+                    <p key={i} className="border-b pb-1 mb-1 text-gray-600">
+                      {txt}
+                    </p>
+                  ))}
+                </div>
+              </Card>
+            )
+          })}
 
-            <Card title={t('data_page.department_distribution')}>
-              <Pie
-                data={Object.entries(userStats?.department || {}).map(([dept, num]) => ({
-                  dept,
-                  num,
-                }))}
-                angleField="num"
-                colorField="dept"
-                radius={0.8}
-                height={260}
-                label={false}
-              />
-            </Card>
-          </>
-        )}
-      </div>
-    )
+          {/* 展示所有用户自定义字段的统计信息（不展示 department） */}
+          {userStats && Object.entries(userStats).map(([key, value]) => {
+            if (key === 'department') return null;
+            if (!value || typeof value !== 'object' || Object.keys(value).length === 0) return null;
+            return (
+              <Card title={key} key={key}>
+                <Pie
+                  data={Object.entries(value).map(([label, num]) => ({
+                    label,
+                    num,
+                  }))}
+                  angleField="num"
+                  colorField="label"
+                  radius={0.8}
+                  height={260}
+                  label={false}
+                />
+              </Card>
+            );
+          })}
+        </>
+      )}
+    </div>
+  )
 }

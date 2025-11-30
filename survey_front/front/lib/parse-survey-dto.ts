@@ -19,7 +19,6 @@ export const SaveSurveyDto = z.object({
           .array(
             z.object({
               id: z.string().optional(),
-              label: z.string().min(1),
               value: z.string().min(1),
               order: z.number().int().default(0),
             })

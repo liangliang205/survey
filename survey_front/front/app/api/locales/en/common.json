@@ -23,6 +23,7 @@
   "rating": "Rating",
   "date": "Date",
   "options": "Options",
+  "option_value": "Option value",
   "add_option": "Add Option",
   "save_survey": "Save Survey",
   "upload": "Upload",

@@ -86,7 +86,6 @@ model Option {
   id         String   @id @default(cuid())
   questionId String
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  label      String
   value      String
   order      Int      @default(0)
 

@@ -29,8 +29,55 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Production Deployment (SQLite Minimal)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 1. Server Preparation
+Install Docker & docker compose on an Ubuntu 22.04 server; ensure a non-root user is in the `docker` group.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 2. Environment Variables
+Create a `.env` based on `.env.example`:
+```
+DATABASE_URL=file:./prisma/dev.db
+NEXTAUTH_SECRET=<openssl rand -hex 32>
+NEXTAUTH_URL=https://your-domain.com
+```
+
+### 3. Generate Migrations Locally
+Run:
+```
+pnpm prisma migrate dev --name remove_option_label
+pnpm prisma generate
+```
+Commit the new migration folder and push to server.
+
+### 4. Build & Run
+```
+docker compose build
+docker compose up -d
+```
+
+### 5. Reverse Proxy & HTTPS
+Use Nginx / Caddy to terminate TLS and proxy to `survey-app:3000`. Set `NEXTAUTH_URL` to the HTTPS domain.
+
+### 6. Backup Strategy
+Periodically archive volumes:
+- SQLite file volume `sqlite_data`
+- Uploads volume `uploads`
+
+### 7. Optional: Upgrade to PostgreSQL
+Add a PostgreSQL service in `docker-compose.yml`, update `DATABASE_URL` to a Postgres connection string, then run `pnpm prisma migrate deploy` in the container.
+
+### 8. Health & Logs
+```
+docker compose ps
+docker logs -f survey-app
+```
+
+### 9. Security Quick Wins
+- Strong `NEXTAUTH_SECRET`
+- Restrict open ports (80/443 only)
+- Regular dependency updates
+- Enforce HTTPS redirects
+
+### Next Steps
+Add monitoring (Watchtower/Prometheus) or CI pipeline as traffic grows.

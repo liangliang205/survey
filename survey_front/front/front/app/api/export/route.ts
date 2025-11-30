@@ -21,9 +21,6 @@ export async function GET(req: NextRequest) {
         orderBy: { order: 'asc' },
         include: { options: true },
       },
-      userInfoFields: {
-        orderBy: { order: 'asc' },
-      },
       submissions: {
         include: {
           answers: true,
@@ -41,60 +38,51 @@ export async function GET(req: NextRequest) {
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('问卷数据')
 
-  // 动态个人信息字段（来自关联表）
-  const userInfoFields = (survey.userInfoFields || []) as Array<{ id: string; title: string; order: number }>
-  const orderedFields = userInfoFields.slice().sort((a, b) => a.order - b.order)
-
-  // 表头（仅自定义字段，无需兼容旧数据）
-  const infoHeaders = orderedFields.map((f) => f.title)
-  const headers = ['提交时间', ...infoHeaders]
-  const questionHeaders = survey.questions.map((q) => q.title)
-  worksheet.addRow([...headers, ...questionHeaders])
+  // 表头
+  const userInfoHeaders = survey.userInfoFields && Array.isArray(survey.userInfoFields)
+    ? survey.userInfoFields.map(field => field.title)
+    : ['姓名', '电话', '邮箱', '部门']; // 默认字段回退
+  const headers = ['提交时间', ...userInfoHeaders];
+  const questionHeaders = survey.questions.map((q) => q.title);
+  worksheet.addRow([...headers, ...questionHeaders]);
 
   // 数据行
   survey.submissions.forEach((submission) => {
-    let userInfo: Record<string, any> = {}
-    try {
-      userInfo = submission.userInfo ? JSON.parse(submission.userInfo) : {}
-    } catch {
-      userInfo = {}
-    }
+    const userInfo = JSON.parse(submission.userInfo);
+    const userInfoData = survey.userInfoFields && Array.isArray(survey.userInfoFields)
+      ? survey.userInfoFields.map(field => userInfo[field.title] || '')
+      : [userInfo.name || '', userInfo.phone || '', userInfo.email || '', userInfo.department || '']; // 默认字段回退
+
     const rowData = [
       submission.createdAt.toLocaleString('zh-CN'),
-      // 注意：userInfo 的键为字段 title
-      ...orderedFields.map((f) => userInfo[f.title] ?? '')
-    ]
+      ...userInfoData,
+    ];
 
     survey.questions.forEach((question) => {
-      const answer = submission.answers.find((a) => a.questionId === question.id)
-      let answerValue = answer?.value || ''
+      const answer = submission.answers.find((a) => a.questionId === question.id);
+      let answerValue = answer?.value || '';
+
       // 如果是多选，解析 JSON
       if (question.type === 'checkbox' && answerValue) {
         try {
-          const values = JSON.parse(answerValue)
-          answerValue = Array.isArray(values) ? values.join(', ') : answerValue
+          const values = JSON.parse(answerValue);
+          answerValue = values.join(', ');
         } catch {}
       }
-      rowData.push(answerValue)
-    })
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('导出-个人信息字段:', infoHeaders)
-      console.log('导出-用户信息对象:', userInfo)
-      console.log('导出行数据:', rowData)
-    }
-    worksheet.addRow(rowData)
-  })
+
+      rowData.push(answerValue);
+    });
+
+    worksheet.addRow(rowData);
+  });
 
   // 自动列宽
   worksheet.columns.forEach((column) => {
-    if (!column) return
     let maxLength = 0
-    if (typeof column.eachCell === 'function') {
-      column.eachCell({ includeEmpty: true }, (cell) => {
-        const cellLength = cell.value ? cell.value.toString().length : 0
-        maxLength = Math.max(maxLength, cellLength)
-      })
-    }
+    column.eachCell({ includeEmpty: true }, (cell) => {
+      const cellLength = cell.value ? cell.value.toString().length : 0
+      maxLength = Math.max(maxLength, cellLength)
+    })
     column.width = maxLength < 10 ? 10 : maxLength
   })
 

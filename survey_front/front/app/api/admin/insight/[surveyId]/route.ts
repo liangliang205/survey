@@ -42,7 +42,7 @@ export async function GET(
 
     if (q.type === 'radio' || q.type === 'checkbox') {
       const counts: Record<string, number> = {}
-      q.options.forEach((opt) => (counts[opt.label] = 0))
+      q.options.forEach((opt) => (counts[opt.value] = 0))
 
       answers.forEach((raw) => {
         try {

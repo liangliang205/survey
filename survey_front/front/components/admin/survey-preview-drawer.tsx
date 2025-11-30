@@ -57,7 +57,7 @@ export default function SurveyPreviewDrawer({ surveyId, open, onClose }: Props) 
                     <>
                       <Space size={4} wrap className="-ml-1">
                         {q.options.map((opt: any) => (
-                          <Tag key={opt.id}>{opt.label}</Tag>
+                          <Tag key={opt.id}>{opt.value}</Tag>
                         ))}
                       </Space>
                     </>

@@ -16,12 +16,14 @@ export default function AdminPage() {
   const [refreshFlag, setRefreshFlag] = useState(0) // 触发 SurveyList 刷新
 
   const createNewSurvey = async () => {
-    const formData = new FormData()
-    formData.append('title', 'Untitled Survey')
-    formData.append('description', '')
-    formData.append('isActive', 'true')
-
-    const result = await saveSurvey(formData)
+    const result = await saveSurvey(null, {
+      title: 'Untitled Survey',
+      description: '',
+      isActive: true,
+      bgImage: '',
+      questions: [],
+      userInfoFields: []
+    })
     if (result.success) {
       const newSurvey = { ...result.data, questions: [] }
       setSelectedSurvey(newSurvey)
