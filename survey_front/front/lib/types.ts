@@ -6,7 +6,18 @@ export type SurveyWithQuestions = Survey & {
     Question & {
       options: Option[]
     }
-  >
+  >,
+  userInfoFields: UserInfoField[]
+}
+
+// 用户信息字段类型
+export type UserInfoField = {
+  id: string
+  title: string
+  type: string
+  required: boolean
+  order: number
+  placeholder?: string
 }
 
 // 用户信息类型（与 Zod schema 保持一致）
@@ -15,6 +26,7 @@ export interface UserInfo {
   phone: string
   email?: string
   department?: string
+  [key: string]: string | undefined
 }
 
 // 答案记录类型（questionId -> 答案值）

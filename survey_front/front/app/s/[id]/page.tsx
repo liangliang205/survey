@@ -17,6 +17,9 @@ export default async function SurveyPage({ params }: Props) {
         orderBy: { order: 'asc' },
         include: { options: { orderBy: { order: 'asc' } } },
       },
+      userInfoFields: {
+        orderBy: { order: 'asc' }
+      }
     },
   })
 

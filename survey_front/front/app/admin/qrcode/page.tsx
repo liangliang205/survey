@@ -5,8 +5,10 @@ import { message, Image, Button, Table } from 'antd'
 import { DownloadOutlined, ExportOutlined } from '@ant-design/icons'
 import { generatePoster } from '@/action/qrcode'
 import { listSurveys } from '@/action/list-surveys' // 已有 fetchSurveys 抽成同名 action
+import { useTranslation } from 'next-i18next'
 
 export default function QrPage() {
+  const { t } = useTranslation('common')
   const [surveys, setList] = useState<any[]>([])
   useEffect(() => {
     listSurveys().then(setList)
@@ -15,20 +17,20 @@ export default function QrPage() {
   const handleGen = async (id: string, title: string) => {
     try {
       const path = await generatePoster(id, title)
-      message.success('已生成！可下载')
+      message.success(t('message.success_created'))
       // 强制刷新
       setList((prev) =>
         prev.map((s) => (s.id === id ? { ...s, qrPath: path } : s))
       )
     } catch {
-      message.error('生成失败')
+      message.error(t('message.creation_failed'))
     }
   }
 
   const columns = [
-    { title: '问卷标题', dataIndex: 'title' },
+    { title: t('survey_title'), dataIndex: 'title' },
     {
-      title: '二维码',
+      title: t('qrcode'),
       dataIndex: 'qrPath',
       render: (path: string) =>
         path ? (
@@ -40,11 +42,11 @@ export default function QrPage() {
             className="rounded"
           />
         ) : (
-          <span className="text-gray-400">未生成</span>
+          <span className="text-gray-400">{t('not_generated')}</span>
         ),
     },
     {
-      title: '操作',
+      title: t('operations'),
       render: (_, record) => (
         <div className="flex gap-2">
           <Button
@@ -53,12 +55,12 @@ export default function QrPage() {
             icon={<ExportOutlined />}
             onClick={() => handleGen(record.id, record.title)}
           >
-            生成
+            {t('generate')}
           </Button>
           {record.qrPath && (
             <a href={record.qrPath} download={`${record.title}.png`}>
               <Button size="small" icon={<DownloadOutlined />}>
-                下载
+                {t('download')}
               </Button>
             </a>
           )}

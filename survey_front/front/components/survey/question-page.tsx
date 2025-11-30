@@ -31,7 +31,7 @@ export function QuestionPage() {
   const isLast = currentIndex === survey.questions.length - 1
 
   const renderQuestion = () => {
-    let value = answers[question.id] ?? '';
+    let value = answers[question.id] ?? "";
 
     switch (question.type) {
       case 'radio':
@@ -101,6 +101,7 @@ export function QuestionPage() {
 
         await submitSurvey(formData)
         setStep('thanks')
+        // 移除 router.refresh() 调用，避免组件重新挂载导致状态丢失
       } catch (error) {
         console.error('提交失败:', error)
       } finally {

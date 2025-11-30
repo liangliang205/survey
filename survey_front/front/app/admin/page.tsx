@@ -7,15 +7,17 @@ import { SurveyPreview } from '@/components/admin/survey-preview'
 import { Button, message, Divider } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { saveSurvey } from '@/action/save-survey'
+import { useTranslation } from 'next-i18next'
 
 export default function AdminPage() {
+  const { t } = useTranslation('common')
   const [selectedSurvey, setSelectedSurvey] = useState<any | null>(null)
   const [editingSurvey, setEditingSurvey] = useState<any | null>(null)
   const [refreshFlag, setRefreshFlag] = useState(0) // 触发 SurveyList 刷新
 
   const createNewSurvey = async () => {
     const formData = new FormData()
-    formData.append('title', '未命名问卷')
+    formData.append('title', 'Untitled Survey')
     formData.append('description', '')
     formData.append('isActive', 'true')
 
@@ -25,9 +27,9 @@ export default function AdminPage() {
       setSelectedSurvey(newSurvey)
       setEditingSurvey(newSurvey)
       setRefreshFlag((v) => v + 1) // 刷新列表
-      message.success('成功创建并进入编辑页')
+      message.success(t('message.success_created'))
     } else {
-      message.error('创建失败')
+      message.error(t('message.creation_failed'))
     }
   }
 
@@ -35,25 +37,25 @@ export default function AdminPage() {
     <div className="flex gap-6 h-full">
       <div className="flex-1">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold">已有问卷</h1>
-          <Button type="primary" icon={<PlusOutlined />} onClick={createNewSurvey}>
-            新建问卷
-          </Button>
+          <h1 className="text-xl font-bold">{t('existing_surveys')}</h1>
+          {/* <Button type="primary" icon={<PlusOutlined />} onClick={createNewSurvey}>
+            {t('new_survey')}
+          </Button> */}
         </div>
 
-        {/* 👉 这是新加表格 */}
+        {/* 👉 This is the new table */}
         <SurveyList refreshFlag={refreshFlag} />
 
         <Divider dashed />
 
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lg font-semibold">问卷配置</h1>
+          <h1 className="text-lg font-semibold">{t('survey_configuration')}</h1>
         </div>
         <SurveyEditor
           survey={selectedSurvey}
           onSave={() => {
             setRefreshFlag((v) => v + 1)
-            setSelectedSurvey(null) // 编辑完毕清空
+            setSelectedSurvey(null) // Clear after editing
             setEditingSurvey(null)
           }}
         />

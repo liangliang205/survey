@@ -2,7 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { SurveyWithQuestions } from '@/lib/types'
+import { SurveyWithQuestions, UserInfo } from '@/lib/types'
 import { z } from 'zod'
 import { useEffect } from 'react'
 
@@ -11,18 +11,18 @@ export const UserInfoSchema = z.object({
   phone: z.string().regex(/^1[3-9]\d{9}$/, '手机号格式不正确'),
   email: z.string().email('邮箱格式不正确').or(z.literal('')).default(''),
   department: z.string().optional(),
-})
+}).catchall(z.string().optional())
 
-export type UserInfo = z.infer<typeof UserInfoSchema>
+export type UserInfoType = UserInfo & Record<string, string | undefined>
 
 interface SurveyState {
   survey: SurveyWithQuestions
   step: 'cover' | 'userInfo' | 'questions' | 'thanks'
-  userInfo: UserInfo
+  userInfo: UserInfoType
   answers: Record<string, string | string[]>
   currentQuestionIndex: number
   setStep: (step: SurveyState['step']) => void
-  setUserInfo: (info: UserInfo) => void
+  setUserInfo: (info: UserInfoType) => void
   setAnswer: (questionId: string, value: string | string[]) => void
   nextQuestion: () => void
 }
@@ -32,7 +32,7 @@ export const useSurveyStore = create<SurveyState>()(
     (set, get) => ({
       survey: {} as SurveyWithQuestions,
       step: 'cover',
-      userInfo: {} as UserInfo,
+      userInfo: {} as UserInfoType,
       answers: {},
       currentQuestionIndex: 0,
       setStep: (step) => set({ step }),
@@ -52,6 +52,7 @@ export const useSurveyStore = create<SurveyState>()(
         answers: state.answers,
         userInfo: state.userInfo,
         currentQuestionIndex: state.currentQuestionIndex,
+        step: state.step, // 添加step状态的持久化，确保刷新后仍能保持当前步骤
       }),
     }
   )
@@ -65,7 +66,8 @@ export function SurveyProvider({
   survey: SurveyWithQuestions
 }) {
   useEffect(() => {
-    useSurveyStore.setState({ survey, step: 'cover' })
+    // 只有当survey改变时才更新survey数据，但不重置step
+    useSurveyStore.setState({ survey })
   }, [survey])
   return <>{children}</>
 }

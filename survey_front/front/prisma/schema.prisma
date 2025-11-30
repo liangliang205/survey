@@ -32,6 +32,7 @@ model Admin {
   name      String? // 显示名称
   createdAt DateTime  @default(now())
   accounts  Account[]
+  surveys   Survey[]
 }
 
 model Survey {
@@ -40,13 +41,31 @@ model Survey {
   description String?
   bgImage     String?
   isActive    Boolean  @default(true)
+  adminId     String
+  admin       Admin    @relation(fields: [adminId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   questions   Question[]
   submissions Submission[]
+  userInfoFields UserInfoField[] // 添加用户信息字段关联
 
   @@index([isActive])
+}
+
+// 用户信息字段定义模型
+model UserInfoField {
+  id          String   @id @default(cuid())
+  surveyId    String
+  survey      Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  title       String   // 字段标题，如"姓名"、"手机号"
+  type        String   // 字段类型，如"text"、"email"、"phone"
+  required    Boolean  @default(true)
+  order       Int      @default(0)
+  placeholder String?
+  createdAt   DateTime @default(now())
+
+  @@index([surveyId])
 }
 
 model Question {

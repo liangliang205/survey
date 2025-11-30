@@ -1,71 +1,95 @@
 'use server'
 
-import { SaveSurveyDto } from '@/lib/parse-survey-dto'
-import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { nanoid } from 'nanoid'
+import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 
-export async function saveSurvey(formData: FormData) {
+export async function saveSurvey(id: string | null, data: any) {
+  const session = await auth()
+  if (!session) {
+    return { success: false, error: '未授权' }
+  }
+
   try {
-    // 1. 将 FormData 解析为普通对象（保留文件 Base64）
-    const dto = Object.fromEntries(formData.entries()) as any
-
-    // 2. 将题目数组反序列化
-    dto.questions = dto.questions ? JSON.parse(dto.questions as string) : []
-    dto.isActive = dto.isActive === 'true'
-
-    // 3. zod 校验
-    const body = SaveSurveyDto.parse(dto)
-
-    // 4. 事务级联写入
-    const survey = await prisma.survey.upsert({
-      where: { id: body.id || '' },
-      update: {
-        title: body.title,
-        description: body.description,
-        isActive: body.isActive,
-        bgImage: body.bgImage || null,
-      },
-      create: {
-        title: body.title,
-        description: body.description || '',
-        isActive: body.isActive,
-        bgImage: body.bgImage || null,
-      },
-    })
-
-    // 题目先清空再重建：简单对称策略
-    await prisma.question.deleteMany({ where: { surveyId: survey.id } })
-
-    // 级联插入
-    for (const q of body.questions) {
-      const question = await prisma.question.create({
+    let survey
+    if (id) {
+      // 更新问卷
+      survey = await prisma.survey.update({
+        where: { id },
         data: {
-          surveyId: survey.id,
-          title: q.title,
-          type: q.type,
-          order: q.order,
-          required: q.required,
-          placeholder: q.placeholder || null,
+          title: data.title,
+          description: data.description,
+          bgImage: data.bgImage,
+          isActive: data.isActive,
+          updatedAt: new Date(),
+          // 删除现有的用户信息字段
+          userInfoFields: {
+            deleteMany: {}
+          },
+          // 删除现有问题和选项
+          questions: {
+            deleteMany: {}
+          }
         },
       })
+    } else {
+      // 创建新问卷
+      survey = await prisma.survey.create({
+        data: {
+          title: data.title,
+          description: data.description,
+          bgImage: data.bgImage,
+          isActive: data.isActive,
+          admin: {
+            connect: {
+              id: session.user.id
+            }
+          }
+        },
+      })
+    }
 
-      if (q.options?.length) {
-        await prisma.option.createMany({
-          data: q.options.map((opt) => ({
-            questionId: question.id,
-            label: opt.label,
-            value: opt.value,
-            order: opt.order,
-          })),
-        })
-      }
+    // 重新创建用户信息字段
+    if (data.userInfoFields && data.userInfoFields.length > 0) {
+      await prisma.userInfoField.createMany({
+        data: data.userInfoFields.map((field: any) => ({
+          surveyId: survey.id,
+          title: field.title,
+          type: field.type,
+          required: field.required,
+          order: field.order,
+          placeholder: field.placeholder,
+        }))
+      })
+    }
+
+    // 重新创建问题
+    for (const question of data.questions) {
+      await prisma.question.create({
+        data: {
+          surveyId: survey.id,
+          title: question.title,
+          type: question.type,
+          order: question.order,
+          required: question.required,
+          placeholder: question.placeholder,
+          options: question.options
+            ? {
+                create: question.options.map((opt: any, optIndex: number) => ({
+                  label: opt.label,
+                  value: opt.value,
+                  order: optIndex,
+                })),
+              }
+            : undefined,
+        },
+      })
     }
 
     revalidatePath('/admin')
     return { success: true, data: survey }
-  } catch (e) {
-    console.error(e)
-    return { success: false, error: (e as Error).message }
+  } catch (error) {
+    console.error('保存问卷失败:', error)
+    return { success: false, error: '保存失败' }
   }
 }
