@@ -8,12 +8,26 @@ services:
     volumes:
       - sqlite_data:/app/prisma
       - uploads:/app/public/uploads
+      - qrcodes:/app/public/qrcodes
     environment:
       - DATABASE_URL=file:./prisma/dev.db
       - NEXTAUTH_SECRET=your-secret-key-here
       - NEXTAUTH_URL=http://localhost:3000
     restart: unless-stopped
 
+  # 一次性运行：迁移数据库并写入种子数据
+  migrate:
+    build:
+      context: .
+      target: builder
+    environment:
+      - DATABASE_URL=file:./prisma/dev.db
+    volumes:
+      - sqlite_data:/app/prisma
+    command: sh -lc "pnpm prisma migrate deploy && pnpm db:seed"
+    # 只在需要时手动运行：docker compose run --rm migrate
+
 volumes:
   sqlite_data:
   uploads:
+  qrcodes:

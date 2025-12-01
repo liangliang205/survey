@@ -63,6 +63,7 @@ Use Nginx / Caddy to terminate TLS and proxy to `survey-app:3000`. Set `NEXTAUTH
 Periodically archive volumes:
 - SQLite file volume `sqlite_data`
 - Uploads volume `uploads`
+ - QR codes volume `qrcodes`
 
 ### 7. Optional: Upgrade to PostgreSQL
 Add a PostgreSQL service in `docker-compose.yml`, update `DATABASE_URL` to a Postgres connection string, then run `pnpm prisma migrate deploy` in the container.
@@ -81,3 +82,38 @@ docker logs -f survey-app
 
 ### Next Steps
 Add monitoring (Watchtower/Prometheus) or CI pipeline as traffic grows.
+
+## Local Docker (SQLite on Windows)
+
+### 1) Prereqs
+- Install Docker Desktop for Windows and ensure it is running.
+
+### 2) Build image
+```powershell
+docker compose build
+```
+
+### 3) Initialize DB (migrations + seed)
+- This runs once to create `dev.db` and a default admin.
+```powershell
+docker compose run --rm migrate
+```
+
+### 4) Start app
+```powershell
+docker compose up -d
+```
+
+### 5) Check logs and open
+```powershell
+docker compose logs -f survey-app
+```
+Visit http://localhost:3000
+
+Default admin account (from seed):
+- Username: `admin`
+- Password: `admin123`
+
+### Notes
+- Volumes persisted locally: `sqlite_data` (SQLite DB), `uploads` (uploaded files), `qrcodes` (generated QR images).
+- Change `NEXTAUTH_SECRET` in `docker-compose.yml` or copy `.env.example` to `.env` and set your own values for local use.

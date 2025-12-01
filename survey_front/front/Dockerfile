@@ -15,8 +15,13 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 # 构建阶段
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+ENV CI=true
+RUN apk add --no-cache libc6-compat openssl
 COPY . .
+
+# 由于 pnpm 使用全局 store + 硬链接/符号链接，仅复制 node_modules 会导致链接失效。
+# 在构建阶段重新安装依赖以保证 CLI 可用（同时仍保留上游 deps 层供缓存加速）。
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # 生成 Prisma Client（现在 schema 已被复制进来）
 RUN pnpm prisma generate
@@ -33,6 +38,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN apk add --no-cache libc6-compat openssl
 
 # 创建非 root 用户
 RUN addgroup --system --gid 1001 nodejs
