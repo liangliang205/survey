@@ -2,15 +2,14 @@
 const nextConfig = {
   // 禁用自动字体优化以解决字体模块错误
   optimizeFonts: false,
+  // 生成可在 Docker 运行时复制的独立产物（.next/standalone）
+  output: 'standalone',
   
-  // 添加国际化配置
+  // 添加国际化配置（保持 Next.js 支持的字段，移除无效 defaultNS/ns）
   i18n: {
-    locales: ['en', 'zh-CN'], // 支持的语言列表
-    defaultLocale: 'en',      // 默认语言
-    // 指定默认 namespace
-    defaultNS: 'common',
-    ns: ['common'],
-    localeDetection: false // 禁用自动检测，避免 zh 转换问题
+    locales: ['en', 'zh-CN'],
+    defaultLocale: 'en',
+    localeDetection: false
   }
   
   // 添加重写规则，避免.locale文件请求出现双重扩展名

@@ -14,11 +14,14 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const { questions } = body
 
     // 先删除所有现有问题和选项
+    // Answer 不支持通过 question 关系筛选，需先获取该问卷的所有问题ID
+    const qIds = await prisma.question.findMany({
+      where: { surveyId: params.id },
+      select: { id: true },
+    })
     await prisma.answer.deleteMany({
       where: {
-        question: {
-          surveyId: params.id,
-        },
+        questionId: { in: qIds.map((q: { id: string }) => q.id) },
       },
     })
     await prisma.option.deleteMany({

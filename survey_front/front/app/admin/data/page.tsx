@@ -2,12 +2,10 @@
 
 import { useLayoutEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { get } from 'lodash'
 import { Card, Select, Empty, message, Button } from 'antd'
 import { Bar, Line, Pie } from '@ant-design/plots'
 import { useTranslation } from 'next-i18next'
 
-import * as XLSX from 'xlsx'
 
 export default function DataPage() {
   const { t } = useTranslation('common')

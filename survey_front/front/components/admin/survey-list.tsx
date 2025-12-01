@@ -33,6 +33,12 @@ export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
   }
   const [previewId, setPreviewId] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
+  type SurveyRow = {
+    id: string
+    title: string
+    isActive: boolean
+    _count?: { submissions?: number }
+  }
   const columns = [
     { title: t('survey_title'), dataIndex: 'title', ellipsis: true },
     { title: t('is_active'), dataIndex: 'isActive', render: (v: boolean) => (v ? t('is_active') : t('not_generated')) },
@@ -47,7 +53,7 @@ export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
     {
       title: t('preview'),
       key: 'preview',
-      render: (_, r) => (
+      render: (_: unknown, r: SurveyRow) => (
         <Button
           type="link"
           size="small"
@@ -64,7 +70,7 @@ export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
       title: t('operations'),
       key: 'action',
       width: 140,
-      render: (_, record) => (
+      render: (_: unknown, record: SurveyRow) => (
         <Space size="small">
           <Button
             icon={<EyeOutlined />}

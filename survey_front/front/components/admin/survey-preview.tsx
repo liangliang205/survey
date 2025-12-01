@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Avatar, Space, Progress } from 'antd'
+import { Card, Avatar, Space, Progress, Radio, Checkbox, Input, Rate, DatePicker } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import Image from 'next/image'
 

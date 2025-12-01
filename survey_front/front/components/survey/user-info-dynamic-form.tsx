@@ -8,9 +8,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { useTranslation } from 'next-i18next'
 
+type DynamicFormValues = Record<string, string>
+
 // 动态创建 Zod schema
-const createDynamicSchema = (fields: any[], t: (key: string) => string) => {
-  const schemaFields: Record<string, any> = {}
+const createDynamicSchema = (
+  fields: any[],
+  t: (key: string) => string
+): z.ZodObject<Record<string, z.ZodString>> => {
+  const schemaFields: Record<string, z.ZodString> = {}
 
   fields.forEach(field => {
     let fieldSchema = z.string()
@@ -43,13 +48,13 @@ export function UserInfoDynamicForm() {
   const [formData, setFormData] = useState<Record<string, string>>({})
 
   // 动态创建验证 schema
-  const dynamicSchema = useMemo(() => {
+  const dynamicSchema = useMemo<z.ZodObject<Record<string, z.ZodString>>>(() => {
     return createDynamicSchema(survey.userInfoFields || [], t)
   }, [survey.userInfoFields, t])
 
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, handleSubmit, formState: { errors } } = useForm<DynamicFormValues>({
     resolver: zodResolver(dynamicSchema),
-    defaultValues: {}
+    defaultValues: {} as DynamicFormValues
   })
 
   // 处理表单字段变化
@@ -60,7 +65,7 @@ export function UserInfoDynamicForm() {
     }))
   }
 
-  const onSubmit = (data: Record<string, string>) => {
+  const onSubmit = (data: DynamicFormValues) => {
     // 将数据转换为 UserInfo 格式
     const userInfo: Record<string, string> = {}
     survey.userInfoFields?.forEach(field => {

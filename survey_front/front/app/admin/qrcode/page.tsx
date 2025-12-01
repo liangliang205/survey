@@ -27,6 +27,7 @@ export default function QrPage() {
     }
   }
 
+  type SurveyRow = { id: string; title: string; qrPath?: string }
   const columns = [
     { title: t('survey_title'), dataIndex: 'title' },
     {
@@ -47,7 +48,7 @@ export default function QrPage() {
     },
     {
       title: t('operations'),
-      render: (_, record) => (
+      render: (_: unknown, record: SurveyRow) => (
         <div className="flex gap-2">
           <Button
             size="small"

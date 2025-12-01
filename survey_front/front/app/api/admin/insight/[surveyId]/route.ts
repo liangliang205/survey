@@ -25,8 +25,10 @@ export async function GET(
 
   // 1. 总览数字
   const totalSubmissions = survey.submissions.length
+  type SubmissionWithAnswers = { createdAt: Date; answers: { questionId: string; value: string }[]; userInfo: string }
+  type QuestionWithOptions = { id: string; title: string; type: string; options: { value: string }[] }
   const dailyCount = survey.submissions.reduce(
-    (acc, sub) => {
+    (acc: Record<string, number>, sub: SubmissionWithAnswers) => {
       const day = sub.createdAt.toISOString().slice(0, 10)
       acc[day] = (acc[day] || 0) + 1
       return acc
@@ -35,16 +37,16 @@ export async function GET(
   )
 
   // 2. 每题统计
-  const questionStats = survey.questions.map((q) => {
+  const questionStats = survey.questions.map((q: QuestionWithOptions) => {
     const answers = survey.submissions
-      .flatMap((s) => s.answers.filter((a) => a.questionId === q.id))
-      .map((a) => a.value)
+      .flatMap((s: SubmissionWithAnswers) => s.answers.filter((a: { questionId: string }) => a.questionId === q.id))
+      .map((a: { value: string }) => a.value)
 
     if (q.type === 'radio' || q.type === 'checkbox') {
       const counts: Record<string, number> = {}
-      q.options.forEach((opt) => (counts[opt.value] = 0))
+      q.options.forEach((opt: { value: string }) => (counts[opt.value] = 0))
 
-      answers.forEach((raw) => {
+      answers.forEach((raw: string) => {
         try {
           const vals = JSON.parse(raw) // 多选
           ;(Array.isArray(vals) ? vals : [vals]).forEach((v) => {
@@ -59,11 +61,11 @@ export async function GET(
 
     // 评分聚合：平均 + 分布
     if (q.type === 'rating') {
-      const data = answers.map(Number).filter((n) => !isNaN(n))
-      const avg = data.length ? data.reduce((a, b) => a + b, 0) / data.length : 0
+      const data = answers.map(Number).filter((n: number) => !isNaN(n))
+      const avg = data.length ? data.reduce((a: number, b: number) => a + b, 0) / data.length : 0
       const buckets = Array.from({ length: 5 }, (_, i) => ({
         score: i + 1,
-        count: data.filter((d) => d === i + 1).length,
+        count: data.filter((d: number) => d === i + 1).length,
       }))
       return { id: q.id, title: q.title, type: q.type, avg, buckets }
     }
@@ -74,7 +76,7 @@ export async function GET(
 
   // 3. 用户画像（简单计算）
   const userStats = {
-    department: survey.submissions.reduce((acc, s) => {
+    department: survey.submissions.reduce((acc: Record<string, number>, s: SubmissionWithAnswers) => {
       const d = JSON.parse(s.userInfo).department || '未知'
       acc[d] = (acc[d] || 0) + 1
       return acc

@@ -17,7 +17,7 @@ export type UserInfoField = {
   type: string
   required: boolean
   order: number
-  placeholder?: string
+  placeholder?: string | null
 }
 
 // 用户信息类型（与 Zod schema 保持一致）

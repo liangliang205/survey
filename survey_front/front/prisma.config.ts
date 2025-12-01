@@ -1,7 +1,6 @@
 // prisma.config.ts
-import type { PrismaConfig } from '@prisma/config'
 
-const config: PrismaConfig = {
+const config = {
   earlyAccess: true, // 必须开启，因为 SQLite adapter 目前是早期访问功能
   datasource: {
     db: {

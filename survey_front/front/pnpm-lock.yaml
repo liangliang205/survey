@@ -44,6 +44,9 @@ importers:
       i18next-http-backend:
         specifier: ^3.0.2
         version: 3.0.2
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       mime-types:
         specifier: ^2.1.35
         version: 2.1.35
@@ -102,6 +105,9 @@ importers:
       '@types/i18next-browser-languagedetector':
         specifier: ^3.0.0
         version: 3.0.0
+      '@types/lodash':
+        specifier: ^4.14.202
+        version: 4.17.21
       '@types/mime-types':
         specifier: ^2.1.4
         version: 2.1.4
@@ -794,6 +800,9 @@ packages:
   '@types/i18next-browser-languagedetector@3.0.0':
     resolution: {integrity: sha512-jCIazV+0MyFB/re4i+HdqkNLNIWahcVztIPyDoBM2KjrFIhzGyvpclel7ma6xhbm+PvidTDY0eXcFRCO+2QOhQ==}
     deprecated: This is a stub types definition. i18next-browser-languagedetector provides its own type definitions, so you do not need this installed.
+
+  '@types/lodash@4.17.21':
+    resolution: {integrity: sha512-FOvQ0YPD5NOfPgMzJihoT+Za5pdkDJWcbpuj1DjaKZIr/gxodQjY/uWEFlTNqW2ugXHUiL8lRQgw63dzKHZdeQ==}
 
   '@types/mime-types@2.1.4':
     resolution: {integrity: sha512-lfU4b34HOri+kAY5UheuFMWPDOI+OPceBSHZKp69gEyTL/mmJ4cnU6Y/rlme3UL3GyOn6Y42hyIEw0/q8sWx5w==}
@@ -2787,6 +2796,8 @@ snapshots:
   '@types/i18next-browser-languagedetector@3.0.0':
     dependencies:
       i18next-browser-languagedetector: 8.2.0
+
+  '@types/lodash@4.17.21': {}
 
   '@types/mime-types@2.1.4': {}
 
