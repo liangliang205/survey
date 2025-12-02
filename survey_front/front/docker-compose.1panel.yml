@@ -1,13 +1,14 @@
 version: '3.8'
 
 # 适用于 1Panel 的部署示例（SQLite 最简版本）
-# 使用步骤：在 1Panel > 编排 / 任务 中新建，粘贴此文件内容（或上传），再设置环境变量与卷路径。
+# 使用方法：在 1Panel > 编排（或自定义应用）中新建，粘贴此内容；
+# 再在 1Panel 界面里设置环境变量与宿主机卷路径。
 services:
   survey-app:
     build: .
     container_name: survey-app
     restart: unless-stopped
-    # 如果在 1Panel 中单独配置环境变量，可删除 environment 块
+    # 若在 1Panel 中单独配置环境变量，可删除此 environment 块
     environment:
       DATABASE_URL: file:./prisma/dev.db
       NEXTAUTH_SECRET: change_me_before_prod
@@ -16,22 +17,29 @@ services:
       PORT: 3000
     ports:
       - "3000:3000"
-    # 1Panel 中卷路径建议统一放在 /opt/data 下，可根据自己策略调整
+    # 注意：容器内路径必须与镜像一致（/app/...），否则数据不会生效
     volumes:
       - survey_sqlite_data:/app/prisma
-      - survey_uploads:/app/public/uploads
-    # 健康检查（1Panel 支持自动重启，可用来辅助探测）
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      # 绑定宿主机目录，便于直接查看/备份；请在 1Panel 中指向实际路径
+      - /data/survey/uploads:/app/public/uploads
+      - /data/survey/qrcodes:/app/public/qrcodes
+
+  # 一次性运行：在服务首次部署后，执行迁移并写入种子数据
+  migrate:
+    build:
+      context: .
+      target: builder
+    environment:
+      - DATABASE_URL=file:./prisma/dev.db
+    volumes:
+      - survey_sqlite_data:/app/prisma
+    command: sh -lc "pnpm prisma migrate deploy && pnpm db:seed"
+    # 只在需要时手动运行（1Panel 中用命令或临时启动该服务）
 
 volumes:
   survey_sqlite_data:
-  survey_uploads:
 
-# 可选：如需之后迁移到 PostgreSQL，可在此文件中新增数据库服务：
+# 可选：如需迁移到 PostgreSQL，可在此文件中新增数据库服务：
 #  postgres:
 #    image: postgres:16-alpine
 #    environment:
