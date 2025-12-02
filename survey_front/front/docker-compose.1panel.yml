@@ -11,8 +11,9 @@ services:
     # 若在 1Panel 中单独配置环境变量，可删除此 environment 块
     environment:
       DATABASE_URL: file:./prisma/dev.db
-      NEXTAUTH_SECRET: change_me_before_prod
-      NEXTAUTH_URL: https://your-domain.com
+      NEXTAUTH_URL: http://106.53.56.21:3000
+      NEXTAUTH_SECRET: "1e45547ff236895bd44e52da3e72ddd83f4e92dd977eb2745f6dbbb3d2cf7f57"
+      NEXT_PUBLIC_MAX_UPLOAD_SIZE: "5242880"
       NODE_ENV: production
       PORT: 3000
     ports:
