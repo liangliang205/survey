@@ -6,6 +6,9 @@ import * as bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // 生产环境建议同时设置环境变量 AUTH_URL，或在反代正确传递 Host/Proto
+  // 这里开启 trustHost 以避免 UntrustedHost 错误（仍建议配置 AUTH_URL）
+  trustHost: true,
   providers: [
     Credentials({
       name: 'credentials',
