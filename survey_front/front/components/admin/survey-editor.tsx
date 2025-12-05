@@ -59,6 +59,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
         isActive: survey.isActive,
         bgImage: survey.bgImage,
         bgImageCover: survey.bgImageCover,
+        bgImageQuestions: survey.bgImageQuestions,
         bgImageThanks: survey.bgImageThanks,
       })
       setQuestions(
@@ -332,6 +333,25 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       }
     },
   }
+    const uploadQuestionsProps: UploadProps = {
+      name: 'file',
+      action: '/api/upload',
+      headers: { authorization: 'authorization-text' },
+      onChange(info) {
+        if (info.file.status === 'done') {
+          const url = info.file.response?.url
+          if (url) {
+            form.setFieldValue('bgImageQuestions', url)
+            message.success('上传成功')
+          } else {
+            message.error('上传失败')
+          }
+        } else if (info.file.status === 'error') {
+          message.error('上传失败')
+        }
+      },
+    }
+
 
 
   const uploadThanksProps: UploadProps = {
@@ -367,31 +387,28 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                 <TextArea placeholder={t('survey_description_placeholder')} rows={3} />
               </Form.Item>
 
-              {/* 全局背景（兼容旧字段） */}
-              <Form.Item name="bgImage" label={t('background_image')}>
-                <Space>
-                  <Input placeholder={t('background_image_placeholder')} />
-                  <Upload {...uploadProps}>
-                    <Button icon={<PictureOutlined />}>{t('upload')}</Button>
-                  </Upload>
-                </Space>
-              </Form.Item>
-
               {/* 三页面独立背景设置 */}
-              <Form.Item name="bgImageCover" label={t('cover_background') || '封面背景'}>
+              <Form.Item name="bgImageCover" label={t('home_background') || '首页背景图'}>
                 <Space>
-                  <Input placeholder={t('background_image_placeholder')} />
+                  <Input placeholder={t('background_image_placeholder') || '请输入图片URL或使用右侧上传'} />
                   <Upload {...uploadCoverProps}>
                     <Button icon={<PictureOutlined />}>{t('upload')}</Button>
                   </Upload>
                 </Space>
               </Form.Item>
 
-              {/** 移除答题页背景上传项，问题页与个人信息页已合并使用同一背景 */}
-
-              <Form.Item name="bgImageThanks" label={t('thanks_background') || '完成页背景'}>
+              <Form.Item name="bgImageQuestions" label={t('content_background') || '内容提交背景图'}>
                 <Space>
-                  <Input placeholder={t('background_image_placeholder')} />
+                  <Input placeholder={t('background_image_placeholder') || '请输入图片URL或使用右侧上传'} />
+                  <Upload {...uploadQuestionsProps}>
+                    <Button icon={<PictureOutlined />}>{t('upload')}</Button>
+                  </Upload>
+                </Space>
+              </Form.Item>
+
+              <Form.Item name="bgImageThanks" label={t('thanks_background') || '提交完成背景图'}>
+                <Space>
+                  <Input placeholder={t('background_image_placeholder') || '请输入图片URL或使用右侧上传'} />
                   <Upload {...uploadThanksProps}>
                     <Button icon={<PictureOutlined />}>{t('upload')}</Button>
                   </Upload>
