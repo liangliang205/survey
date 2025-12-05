@@ -1,13 +1,10 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import { ConfigProvider } from 'antd'
 import { AuthProvider } from '@/components/providers/auth-provider'
 import { appWithTranslation } from 'next-i18next'
 import { I18nProvider } from '@/components/providers/i18n-provider'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Mobile Survey System',
@@ -20,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="zh-CN">
+      <body>
         <I18nProvider>
           <AntdRegistry>
             <ConfigProvider

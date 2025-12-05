@@ -19,12 +19,23 @@ export function ThanksPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="flex flex-col items-center justify-center min-h-screen p-6"
+      className="relative min-h-screen p-6 flex items-center justify-center"
+      style={{
+        backgroundImage: (survey as any).bgImageThanks
+          ? `url(${(survey as any).bgImageThanks})`
+          : survey?.bgImage
+          ? `url(${survey.bgImage})`
+          : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
         <motion.div
           initial={{ y: -20 }}
           animate={{ y: 0 }}
@@ -49,7 +60,12 @@ export function ThanksPage() {
           transition={{ delay: 0.5 }}
           className="space-y-3"
         >
-          <Button type="primary" block size="large" onClick={handleBackToHome}>
+          <Button
+            block
+            size="large"
+            onClick={handleBackToHome}
+            className="bg-gradient-to-r from-blue-500/80 to-indigo-500/80 text-white backdrop-blur-md hover:from-blue-500 hover:to-indigo-600 transition-colors duration-300 border-0"
+          >
             {t('back_to_home')}
           </Button>
         </motion.div>

@@ -34,6 +34,7 @@
   "generate": "Generate",
   "download": "Download",
   "preview": "Preview",
+  "existing_surveys": "Existing Surveys",
   "delete_confirm": "Are you sure to delete? All submissions will be deleted as well.",
   "data_page": {
     "select_survey": "Please select a survey to view",

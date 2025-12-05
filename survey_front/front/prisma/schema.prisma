@@ -40,6 +40,10 @@ model Survey {
   title       String
   description String?
   bgImage     String?
+  // 为不同页面分别设置背景
+  bgImageCover     String?
+  bgImageQuestions String?
+  bgImageThanks    String?
   isActive    Boolean  @default(true)
   adminId     String
   admin       Admin    @relation(fields: [adminId], references: [id])

@@ -13,8 +13,8 @@ if (!i18n.isInitialized) {
     .use(LanguageDetector)
     .use(initReactI18next)
     .init({
-      fallbackLng: 'en',
-      lng: 'en',
+      fallbackLng: 'zh-CN',
+      lng: 'zh-CN',
       // 修改loadPath，移除.json扩展名，因为API路由会自动处理
       backend: {
         loadPath: '/api/locales/{{lng}}/{{ns}}',

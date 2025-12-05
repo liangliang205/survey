@@ -115,8 +115,21 @@ export function QuestionPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+    <div
+      className="relative min-h-screen p-6 flex items-center justify-center"
+      style={{
+        backgroundImage: (survey as any).bgImageQuestions
+          ? `url(${(survey as any).bgImageQuestions})`
+          : survey.bgImage
+          ? `url(${survey.bgImage})`
+          : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 max-w-md w-full">
         <div className="mb-4">
           <span className="text-sm text-gray-500">
             {t('question_progress', { current: currentIndex + 1, total: survey.questions.length })}
@@ -140,16 +153,15 @@ export function QuestionPage() {
           {currentIndex > 0 && (
             <Button
               onClick={() => useSurveyStore.setState({ currentQuestionIndex: currentIndex - 1 })}
-              className="flex-1"
+              className="flex-1 bg-white/70 hover:bg-white/90 backdrop-blur border border-white/60"
             >
               {t('previous')}
             </Button>
           )}
           <Button
-            type="primary"
             onClick={handleNext}
             loading={loading}
-            className="flex-1"
+            className="flex-1 bg-gradient-to-r from-blue-500/80 to-indigo-500/80 text-white backdrop-blur-md hover:from-blue-500 hover:to-indigo-600 transition-colors duration-300 border-0"
             disabled={question.required && !answers[question.id]}
           >
             {isLast ? t('submit') : t('next')}

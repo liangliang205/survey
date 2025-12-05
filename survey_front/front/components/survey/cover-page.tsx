@@ -14,7 +14,11 @@ export function CoverPage() {
     <div
       className="relative min-h-screen w-full flex items-end justify-center"
       style={{
-        backgroundImage: survey.bgImage ? `url(${survey.bgImage})` : undefined,
+        backgroundImage: (survey as any).bgImageCover
+          ? `url(${(survey as any).bgImageCover})`
+          : survey.bgImage
+          ? `url(${survey.bgImage})`
+          : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -23,9 +27,28 @@ export function CoverPage() {
       <div className="absolute inset-0 bg-black/30" />
       <div className="relative z-10 w-full flex justify-center pb-24">
         <Button
-          type="primary"
           size="large"
-          className="w-[320px] py-7 text-3xl font-bold tracking-widest rounded-full shadow-lg"
+          className="w-[380px] py-8 text-4xl font-bold tracking-widest rounded-full transition-all duration-300 hover:scale-[1.02]"
+          style={{
+            background: 'rgba(255, 255, 255, 0.22)',
+            border: '1px solid rgba(255, 255, 255, 0.40)',
+            boxShadow:
+              '0 8px 32px 0 rgba(31, 38, 135, 0.25), inset 0 1px 0 rgba(255,255,255,0.3)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            color: '#ffffff',
+            textShadow: '0 1px 2px rgba(0,0,0,0.25)',
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLButtonElement
+            el.style.background = 'rgba(255, 255, 255, 0.30)'
+            el.style.border = '1px solid rgba(255, 255, 255, 0.55)'
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLButtonElement
+            el.style.background = 'rgba(255, 255, 255, 0.22)'
+            el.style.border = '1px solid rgba(255, 255, 255, 0.40)'
+          }}
           onClick={() => setStep('userInfo')}
         >
           {t('start_filling')}

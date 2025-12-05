@@ -6,11 +6,13 @@ import { EyeOutlined, QrcodeOutlined, DeleteOutlined } from '@ant-design/icons'
 import { deleteSurvey } from '@/action/delete-survey'
 import SurveyPreviewDrawer from './survey-preview-drawer'
 import { useTranslation } from 'next-i18next'
+import { useRouter } from 'next/navigation'
 
-export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
+export default function SurveyList({ refreshFlag, onSelect }: { refreshFlag: number; onSelect?: (survey: any) => void }) {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState<any[]>([])
+  const router = useRouter()
 
   // 获取列表
   useEffect(() => {
@@ -69,24 +71,42 @@ export default function SurveyList({ refreshFlag }: { refreshFlag: number }) {
     {
       title: t('operations'),
       key: 'action',
-      width: 140,
+      width: 260,
+      className: 'text-nowrap',
       render: (_: unknown, record: SurveyRow) => (
-        <Space size="small">
+        <Space size="middle" wrap>
           <Button
             icon={<EyeOutlined />}
-            size="small"
+            size="middle"
+            className="px-4"
             onClick={() => window.open(`/s/${record.id}`, '_blank')}
           />
           <Button
             icon={<QrcodeOutlined />}
-            size="small"
-            onClick={() => window.open(`/admin/qrcode?id=${record.id}`, '_blank')}
+            size="middle"
+            className="px-4"
+            onClick={() => router.push(`/admin/qrcode?id=${record.id}`)}
           />
+          <Button
+            size="middle"
+            className="px-4"
+            onClick={async () => {
+              try {
+                const res = await fetch(`/api/admin/survey-detail/${record.id}`)
+                const detail = await res.json()
+                onSelect && onSelect(detail)
+              } catch (e) {
+                message.error(t('message.creation_failed'))
+              }
+            }}
+          >
+            {t('edit')}
+          </Button>
           <Popconfirm
             title={t('delete_confirm')}
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button danger icon={<DeleteOutlined />} size="small" />
+            <Button danger icon={<DeleteOutlined />} size="middle" className="px-4" />
           </Popconfirm>
         </Space>
       ),

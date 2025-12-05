@@ -46,7 +46,13 @@ export default function AdminPage() {
         </div>
 
         {/* 👉 This is the new table */}
-        <SurveyList refreshFlag={refreshFlag} />
+        <SurveyList
+          refreshFlag={refreshFlag}
+          onSelect={(s) => {
+            setSelectedSurvey(s)
+            setEditingSurvey(s)
+          }}
+        />
 
         <Divider dashed />
 
@@ -57,7 +63,7 @@ export default function AdminPage() {
           survey={selectedSurvey}
           onSave={() => {
             setRefreshFlag((v) => v + 1)
-            setSelectedSurvey(null) // Clear after editing
+            setSelectedSurvey(null)
             setEditingSurvey(null)
           }}
         />

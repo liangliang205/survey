@@ -20,6 +20,9 @@ export async function saveSurvey(id: string | null, data: any) {
           title: data.title,
           description: data.description,
           bgImage: data.bgImage,
+          bgImageCover: data.bgImageCover,
+          bgImageQuestions: data.bgImageQuestions,
+          bgImageThanks: data.bgImageThanks,
           isActive: data.isActive,
           updatedAt: new Date(),
           // 删除现有的用户信息字段
@@ -39,6 +42,9 @@ export async function saveSurvey(id: string | null, data: any) {
           title: data.title,
           description: data.description,
           bgImage: data.bgImage,
+          bgImageCover: data.bgImageCover,
+          bgImageQuestions: data.bgImageQuestions,
+          bgImageThanks: data.bgImageThanks,
           isActive: data.isActive,
           admin: {
             connect: {

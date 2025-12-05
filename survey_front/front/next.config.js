@@ -8,7 +8,7 @@ const nextConfig = {
   // 添加国际化配置（保持 Next.js 支持的字段，移除无效 defaultNS/ns）
   i18n: {
     locales: ['en', 'zh-CN'],
-    defaultLocale: 'en',
+    defaultLocale: 'zh-CN',
     localeDetection: false
   }
   

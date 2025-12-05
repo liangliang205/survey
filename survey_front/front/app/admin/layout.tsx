@@ -5,8 +5,21 @@ import { UserOutlined, FormOutlined, QrcodeOutlined, BarChartOutlined, DownOutli
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
+import { create } from 'zustand'
+import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 const { Header, Sider, Content } = Layout
+
+type SiderState = {
+  selectedKey: string
+  setSelectedKey: (key: string) => void
+}
+
+const useSiderStore = create<SiderState>((set) => ({
+  selectedKey: 'dashboard',
+  setSelectedKey: (key) => set({ selectedKey: key }),
+}))
 
 export default function AdminLayout({
   children,
@@ -16,6 +29,9 @@ export default function AdminLayout({
   // session 校验请用中间件或页面逻辑，不在 layout 里做
 
   const { t } = useTranslation('common')
+  const pathname = usePathname()
+  const selectedKey = useSiderStore((s) => s.selectedKey)
+  const setSelectedKey = useSiderStore((s) => s.setSelectedKey)
 
   const menuItems = [
     {
@@ -50,13 +66,30 @@ export default function AdminLayout({
     i18n.changeLanguage(lang)
   }
 
+  // 根据当前路由自动同步选中状态
+  useEffect(() => {
+    if (!pathname) return
+    if (pathname.startsWith('/admin/data')) {
+      setSelectedKey('data')
+    } else if (pathname.startsWith('/admin/qrcode')) {
+      setSelectedKey('qrcode')
+    } else {
+      setSelectedKey('dashboard')
+    }
+  }, [pathname, setSelectedKey])
+
   return (
     <Layout className="min-h-screen">
       <Sider width={200} theme="light">
         <div className="flex items-center justify-center h-16 border-b">
           <h2 className="text-lg font-bold">{t('basic_settings')}</h2>
         </div>
-        <Menu mode="inline" items={menuItems} defaultSelectedKeys={['dashboard']} />
+        <Menu
+          mode="inline"
+          items={menuItems}
+          selectedKeys={[selectedKey]}
+          onClick={({ key }) => setSelectedKey(String(key))}
+        />
       </Sider>
       <Layout>
         <Header className="bg-white px-6 flex items-center justify-between border-b">

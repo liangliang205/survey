@@ -6,6 +6,9 @@ export const SaveSurveyDto = z.object({
   description: z.string().optional(),
   isActive: z.boolean().default(true),
   bgImage: z.string().optional(),
+  bgImageCover: z.string().optional(),
+  bgImageQuestions: z.string().optional(),
+  bgImageThanks: z.string().optional(),
   questions: z
     .array(
       z.object({

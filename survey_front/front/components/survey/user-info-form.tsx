@@ -11,6 +11,7 @@ import { useTranslation } from 'next-i18next'
 
 export function UserInfoForm() {
   const { t } = useTranslation('common')
+  const survey = useSurveyStore((state) => state.survey)
   const setStep = useSurveyStore((state) => state.setStep)
   const setUserInfo = useSurveyStore((state) => state.setUserInfo)
 
@@ -34,8 +35,21 @@ export function UserInfoForm() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+    <div
+      className="relative min-h-screen p-6 flex items-center justify-center"
+      style={{
+        backgroundImage: (survey as any).bgImageQuestions
+          ? `url(${(survey as any).bgImageQuestions})`
+          : (survey as any).bgImage
+          ? `url(${(survey as any).bgImage})`
+          : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 max-w-md w-full">
         <h2 className="text-xl font-semibold mb-6">{t('personal_info')}</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
@@ -81,7 +95,12 @@ export function UserInfoForm() {
               )}
             />
           </div>
-          <Button type="primary" htmlType="submit" block size="large">
+          <Button
+            htmlType="submit"
+            block
+            size="large"
+            className="bg-gradient-to-r from-blue-500/80 to-indigo-500/80 text-white backdrop-blur-md hover:from-blue-500 hover:to-indigo-600 transition-colors duration-300 border-0"
+          >
             {t('next')}
           </Button>
         </form>
