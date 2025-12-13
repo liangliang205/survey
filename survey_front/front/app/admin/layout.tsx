@@ -28,10 +28,16 @@ export default function AdminLayout({
 }) {
   // session 校验请用中间件或页面逻辑，不在 layout 里做
 
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
   const pathname = usePathname()
   const selectedKey = useSiderStore((s) => s.selectedKey)
   const setSelectedKey = useSiderStore((s) => s.setSelectedKey)
+
+  useEffect(() => {
+    if (i18n.language !== 'zh-CN') {
+      i18n.changeLanguage('zh-CN')
+    }
+  }, [i18n])
 
   const menuItems = [
     {

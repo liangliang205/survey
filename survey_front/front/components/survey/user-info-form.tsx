@@ -3,17 +3,21 @@
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input } from 'antd'
+import { Button, Input, message } from 'antd'
 import { getUserInfoSchema } from './survey-context'
 import { UserInfo } from '@/lib/types'
 import { useSurveyStore } from './survey-context'
 import { useTranslation } from 'next-i18next'
+import { submitUserInfo } from '@/action/submit-survey'
+import { useState } from 'react'
 
 export function UserInfoForm() {
   const { t } = useTranslation('common')
   const survey = useSurveyStore((state) => state.survey)
   const setStep = useSurveyStore((state) => state.setStep)
   const setUserInfo = useSurveyStore((state) => state.setUserInfo)
+  const setSubmissionId = useSurveyStore((state) => state.setSubmissionId)
+  const [loading, setLoading] = useState(false)
 
   const {
     control,
@@ -29,9 +33,25 @@ export function UserInfoForm() {
     },
   })
 
-  const onSubmit = (data: UserInfo) => {
-    setUserInfo(data)
-    setStep('questions')
+  const onSubmit = async (data: UserInfo) => {
+    setLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('surveyId', survey.id)
+      formData.append('userInfo', JSON.stringify(data))
+
+      const result = await submitUserInfo(formData)
+      if (result.success && result.submissionId) {
+        setUserInfo(data)
+        setSubmissionId(result.submissionId)
+        setStep('contactSupport')
+      }
+    } catch (error) {
+      console.error('提交用户信息失败:', error)
+      message.error(t('submit_failed') || '提交失败，请重试')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -98,6 +118,7 @@ export function UserInfoForm() {
           <Button
             htmlType="submit"
             block
+            loading={loading}
             size="large"
             className="bg-gradient-to-r from-blue-500/80 to-indigo-500/80 text-white backdrop-blur-md hover:from-blue-500 hover:to-indigo-600 transition-colors duration-300 border-0"
           >

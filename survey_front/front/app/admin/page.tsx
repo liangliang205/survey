@@ -18,7 +18,6 @@ export default function AdminPage() {
   const createNewSurvey = async () => {
     const result = await saveSurvey(null, {
       title: 'Untitled Survey',
-      description: '',
       isActive: true,
       bgImage: '',
       questions: [],

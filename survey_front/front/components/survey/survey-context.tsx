@@ -20,12 +20,14 @@ export type UserInfoType = UserInfo & Record<string, string | undefined>
 
 interface SurveyState {
   survey: SurveyWithQuestions
-  step: 'cover' | 'userInfo' | 'questions' | 'thanks'
+  step: 'cover' | 'userInfo' | 'contactSupport' | 'questions' | 'thanks'
   userInfo: UserInfoType
+  submissionId: string | null
   answers: Record<string, string | string[]>
   currentQuestionIndex: number
   setStep: (step: SurveyState['step']) => void
   setUserInfo: (info: UserInfoType) => void
+  setSubmissionId: (id: string) => void
   setAnswer: (questionId: string, value: string | string[]) => void
   nextQuestion: () => void
 }
@@ -36,10 +38,12 @@ export const useSurveyStore = create<SurveyState>()(
       survey: {} as SurveyWithQuestions,
       step: 'cover',
       userInfo: {} as UserInfoType,
+      submissionId: null,
       answers: {},
       currentQuestionIndex: 0,
       setStep: (step) => set({ step }),
       setUserInfo: (userInfo) => set({ userInfo }),
+      setSubmissionId: (submissionId) => set({ submissionId }),
       setAnswer: (questionId, value) =>
         set((state) => ({
           answers: { ...state.answers, [questionId]: value },

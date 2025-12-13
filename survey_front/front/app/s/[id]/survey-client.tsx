@@ -6,12 +6,15 @@ import { UserInfoForm } from '@/components/survey/user-info-form'
 import { UserInfoDynamicForm } from '@/components/survey/user-info-dynamic-form'
 import { QuestionPage } from '@/components/survey/question-page'
 import { ThanksPage } from '@/components/survey/thanks-page'
+import { ContactSupportCard } from '@/components/survey/contact-support-card'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect } from 'react'
+import { useTranslation } from 'next-i18next'
 
-const STEPS = ['cover', 'userInfo', 'questions', 'thanks'] as const
+const STEPS = ['cover', 'userInfo', 'contactSupport', 'questions', 'thanks'] as const
 
 export default function SurveyClient() {
+  const { i18n } = useTranslation('common')
   const step = useSurveyStore((state) => state.step)
   const survey = useSurveyStore((state) => state.survey)
   
@@ -22,6 +25,13 @@ export default function SurveyClient() {
     }
   }, [survey])
 
+  // 强制问卷页面使用英文
+  useEffect(() => {
+    if (i18n.language !== 'en') {
+      i18n.changeLanguage('en')
+    }
+  }, [i18n])
+
   const renderStep = () => {
     switch (step) {
       case 'cover':
@@ -31,6 +41,8 @@ export default function SurveyClient() {
         return survey.userInfoFields && survey.userInfoFields.length > 0 
           ? <UserInfoDynamicForm /> 
           : <UserInfoForm />
+      case 'contactSupport':
+        return <ContactSupportCard />
       case 'questions':
         return <QuestionPage />
       case 'thanks':

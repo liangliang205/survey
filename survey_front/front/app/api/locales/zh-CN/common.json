@@ -46,6 +46,8 @@
   "edit": "编辑",
   "loading": "加载中",
   "delete_confirm": "确定删除吗？所有答卷会一并删除。",
+  "support_card_image": "支持卡片图",
+  "support_card_image_placeholder": "请输入图片URL或使用右侧上传，建议尺寸 400x300",
   "data_page": {
     "select_survey": "请选择要查看的问卷",
     "export_excel": "导出 Excel",

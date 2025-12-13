@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button, Form, Input, Switch, Card, Space, Select, Radio, Checkbox, Rate, DatePicker, Upload, message, Tabs } from 'antd'
-import { PlusOutlined, DeleteOutlined, UpOutlined, DownOutlined, PictureOutlined } from '@ant-design/icons'
+import { Button, Form, Input, Switch, Card, Space, Select, Radio, Checkbox, Rate, DatePicker, Upload, message, Tabs, Modal, Image as AntImage } from 'antd'
+import { PlusOutlined, DeleteOutlined, UpOutlined, DownOutlined, PictureOutlined, AppstoreOutlined } from '@ant-design/icons'
 import type { UploadProps } from 'antd'
 import { saveSurvey } from '@/action/save-survey'
 import { useTranslation } from 'react-i18next'
@@ -47,20 +47,46 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
   const [questions, setQuestions] = useState<QuestionInput[]>([])
   const [userInfoFields, setUserInfoFields] = useState<UserInfoFieldInput[]>([])
   const [loading, setLoading] = useState(false)
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  const [imageList, setImageList] = useState<string[]>([])
+  const [currentImageField, setCurrentImageField] = useState<string>('')
   const { t } = useTranslation() // 添加这一行来获取 t 函数
   // 获取 onChange
   const onChange = (typeof arguments[0] === 'object' && 'onChange' in arguments[0]) ? arguments[0].onChange : undefined
+
+  const fetchImages = async () => {
+    try {
+      const res = await fetch('/api/admin/uploads/list')
+      const data = await res.json()
+      if (data.files) {
+        setImageList(data.files)
+      }
+    } catch (error) {
+      message.error('获取图片列表失败')
+    }
+  }
+
+  const openImageSelector = (field: string) => {
+    setCurrentImageField(field)
+    fetchImages()
+    setIsImageModalOpen(true)
+  }
+
+  const handleSelectImage = (url: string) => {
+    form.setFieldValue(currentImageField, url)
+    setIsImageModalOpen(false)
+  }
 
   useEffect(() => {
     if (survey) {
       form.setFieldsValue({
         title: survey.title,
-        description: survey.description,
         isActive: survey.isActive,
         bgImage: survey.bgImage,
         bgImageCover: survey.bgImageCover,
         bgImageQuestions: survey.bgImageQuestions,
         bgImageThanks: survey.bgImageThanks,
+        supportCardImage: survey.supportCardImage,
       })
       setQuestions(
         survey.questions.map((q: any) => ({
@@ -352,7 +378,24 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       },
     }
 
-
+  const uploadSupportCardImageProps: UploadProps = {
+    name: 'file',
+    action: '/api/upload',
+    headers: { authorization: 'authorization-text' },
+    onChange(info) {
+      if (info.file.status === 'done') {
+        const url = info.file.response?.url
+        if (url) {
+          form.setFieldValue('supportCardImage', url)
+          message.success('上传成功')
+        } else {
+          message.error('上传失败')
+        }
+      } else if (info.file.status === 'error') {
+        message.error('上传失败')
+      }
+    },
+  }
 
   const uploadThanksProps: UploadProps = {
     name: 'file',
@@ -383,33 +426,102 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                 <Input placeholder={t('survey_title_placeholder')} />
               </Form.Item>
               
-              <Form.Item name="description" label={t('survey_description')}>
-                <TextArea placeholder={t('survey_description_placeholder')} rows={3} />
-              </Form.Item>
-
               {/* 三页面独立背景设置 */}
-              <Form.Item name="bgImageCover" label={t('home_background') || '首页背景图'}>
-                <Space>
-                  <Input placeholder={t('background_image_placeholder') || '请输入图片URL或使用右侧上传'} />
-                  <Upload {...uploadCoverProps}>
+              <Form.Item label={t('home_background') || '首页背景图'}>
+                <Space align="start">
+                  <Form.Item name="bgImageCover" noStyle>
+                    <Input type="hidden" />
+                  </Form.Item>
+                  <Form.Item shouldUpdate={(prev, curr) => prev.bgImageCover !== curr.bgImageCover} noStyle>
+                    {({ getFieldValue }) => {
+                      const url = getFieldValue('bgImageCover')
+                      return url ? (
+                        <div className="relative group">
+                          <AntImage src={url} height={80} width={120} style={{ objectFit: 'cover', borderRadius: 4 }} />
+                          <div className="absolute top-0 right-0 p-1 cursor-pointer bg-white/80 rounded-bl" onClick={() => form.setFieldValue('bgImageCover', '')}>
+                            <DeleteOutlined className="text-red-500" />
+                          </div>
+                        </div>
+                      ) : null
+                    }}
+                  </Form.Item>
+                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageCover')}>选择已有</Button>
+                  <Upload {...uploadCoverProps} showUploadList={false}>
                     <Button icon={<PictureOutlined />}>{t('upload')}</Button>
                   </Upload>
                 </Space>
               </Form.Item>
 
-              <Form.Item name="bgImageQuestions" label={t('content_background') || '内容提交背景图'}>
-                <Space>
-                  <Input placeholder={t('background_image_placeholder') || '请输入图片URL或使用右侧上传'} />
-                  <Upload {...uploadQuestionsProps}>
+              <Form.Item label={t('content_background') || '内容提交背景图'}>
+                <Space align="start">
+                  <Form.Item name="bgImageQuestions" noStyle>
+                    <Input type="hidden" />
+                  </Form.Item>
+                  <Form.Item shouldUpdate={(prev, curr) => prev.bgImageQuestions !== curr.bgImageQuestions} noStyle>
+                    {({ getFieldValue }) => {
+                      const url = getFieldValue('bgImageQuestions')
+                      return url ? (
+                        <div className="relative group">
+                          <AntImage src={url} height={80} width={120} style={{ objectFit: 'cover', borderRadius: 4 }} />
+                          <div className="absolute top-0 right-0 p-1 cursor-pointer bg-white/80 rounded-bl" onClick={() => form.setFieldValue('bgImageQuestions', '')}>
+                            <DeleteOutlined className="text-red-500" />
+                          </div>
+                        </div>
+                      ) : null
+                    }}
+                  </Form.Item>
+                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageQuestions')}>选择已有</Button>
+                  <Upload {...uploadQuestionsProps} showUploadList={false}>
                     <Button icon={<PictureOutlined />}>{t('upload')}</Button>
                   </Upload>
                 </Space>
               </Form.Item>
 
-              <Form.Item name="bgImageThanks" label={t('thanks_background') || '提交完成背景图'}>
-                <Space>
-                  <Input placeholder={t('background_image_placeholder') || '请输入图片URL或使用右侧上传'} />
-                  <Upload {...uploadThanksProps}>
+              <Form.Item label={t('thanks_background') || '提交完成背景图'}>
+                <Space align="start">
+                  <Form.Item name="bgImageThanks" noStyle>
+                    <Input type="hidden" />
+                  </Form.Item>
+                  <Form.Item shouldUpdate={(prev, curr) => prev.bgImageThanks !== curr.bgImageThanks} noStyle>
+                    {({ getFieldValue }) => {
+                      const url = getFieldValue('bgImageThanks')
+                      return url ? (
+                        <div className="relative group">
+                          <AntImage src={url} height={80} width={120} style={{ objectFit: 'cover', borderRadius: 4 }} />
+                          <div className="absolute top-0 right-0 p-1 cursor-pointer bg-white/80 rounded-bl" onClick={() => form.setFieldValue('bgImageThanks', '')}>
+                            <DeleteOutlined className="text-red-500" />
+                          </div>
+                        </div>
+                      ) : null
+                    }}
+                  </Form.Item>
+                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageThanks')}>选择已有</Button>
+                  <Upload {...uploadThanksProps} showUploadList={false}>
+                    <Button icon={<PictureOutlined />}>{t('upload')}</Button>
+                  </Upload>
+                </Space>
+              </Form.Item>
+
+              <Form.Item label={t('support_card_image') || '支持卡片图片'}>
+                <Space align="start">
+                  <Form.Item name="supportCardImage" noStyle>
+                    <Input type="hidden" />
+                  </Form.Item>
+                  <Form.Item shouldUpdate={(prev, curr) => prev.supportCardImage !== curr.supportCardImage} noStyle>
+                    {({ getFieldValue }) => {
+                      const url = getFieldValue('supportCardImage')
+                      return url ? (
+                        <div className="relative group">
+                          <AntImage src={url} height={80} width={120} style={{ objectFit: 'cover', borderRadius: 4 }} />
+                          <div className="absolute top-0 right-0 p-1 cursor-pointer bg-white/80 rounded-bl" onClick={() => form.setFieldValue('supportCardImage', '')}>
+                            <DeleteOutlined className="text-red-500" />
+                          </div>
+                        </div>
+                      ) : null
+                    }}
+                  </Form.Item>
+                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('supportCardImage')}>选择已有</Button>
+                  <Upload {...uploadSupportCardImageProps} showUploadList={false}>
                     <Button icon={<PictureOutlined />}>{t('upload')}</Button>
                   </Upload>
                 </Space>
@@ -651,6 +763,38 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
           {t('save_survey')}
         </Button>
       </div>
+
+      <Modal 
+        title="选择图片" 
+        open={isImageModalOpen} 
+        onCancel={() => setIsImageModalOpen(false)} 
+        footer={null} 
+        width={800}
+      >
+        <div className="grid grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-2">
+          {imageList.map(url => (
+            <div 
+              key={url} 
+              className="cursor-pointer border hover:border-blue-500 p-2 rounded transition-all hover:shadow-md" 
+              onClick={() => handleSelectImage(url)}
+            >
+              <AntImage 
+                src={url} 
+                preview={false} 
+                style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: 4 }} 
+              />
+              <div className="text-xs text-gray-500 mt-1 truncate text-center">
+                {url.split('/').pop()}
+              </div>
+            </div>
+          ))}
+          {imageList.length === 0 && (
+            <div className="col-span-4 text-center py-8 text-gray-500">
+              暂无图片，请先上传
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   )
 }

@@ -39,9 +39,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       where: { id: params.id },
       data: {
         title: body.title,
-        description: body.description,
         isActive: body.isActive,
         bgImage: body.bgImage,
+        supportCardImage: body.supportCardImage,
       },
       include: {
         questions: {

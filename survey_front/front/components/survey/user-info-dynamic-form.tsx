@@ -2,11 +2,12 @@
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input, Form } from 'antd'
+import { Button, Input, Form, message } from 'antd'
 import { useSurveyStore } from './survey-context'
 import { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { useTranslation } from 'next-i18next'
+import { submitUserInfo } from '@/action/submit-survey'
 
 type DynamicFormValues = Record<string, string>
 
@@ -45,7 +46,9 @@ export function UserInfoDynamicForm() {
   const survey = useSurveyStore((state) => state.survey)
   const setStep = useSurveyStore((state) => state.setStep)
   const setUserInfo = useSurveyStore((state) => state.setUserInfo)
+  const setSubmissionId = useSurveyStore((state) => state.setSubmissionId)
   const [formData, setFormData] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(false)
 
   // 动态创建验证 schema
   const dynamicSchema = useMemo<z.ZodObject<Record<string, z.ZodString>>>(() => {
@@ -65,15 +68,31 @@ export function UserInfoDynamicForm() {
     }))
   }
 
-  const onSubmit = (data: DynamicFormValues) => {
+  const onSubmit = async (data: DynamicFormValues) => {
     // 将数据转换为 UserInfo 格式
     const userInfo: Record<string, string> = {}
     survey.userInfoFields?.forEach(field => {
       userInfo[field.title] = data[field.id] || ''
     })
 
-    setUserInfo(userInfo as any)
-    setStep('questions')
+    setLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('surveyId', survey.id)
+      formData.append('userInfo', JSON.stringify(userInfo))
+
+      const result = await submitUserInfo(formData)
+      if (result.success && result.submissionId) {
+        setUserInfo(userInfo as any)
+        setSubmissionId(result.submissionId)
+        setStep('contactSupport')
+      }
+    } catch (error) {
+      console.error('提交用户信息失败:', error)
+      message.error(t('submit_failed') || '提交失败，请重试')
+    } finally {
+      setLoading(false)
+    }
   }
 
   // 如果没有定义用户信息字段，则使用默认字段
@@ -162,6 +181,7 @@ export function UserInfoDynamicForm() {
           <Button
             htmlType="submit"
             block
+            loading={loading}
             size="large"
             className="bg-gradient-to-r from-blue-500/80 to-indigo-500/80 text-white backdrop-blur-md hover:from-blue-500 hover:to-indigo-600 transition-colors duration-300 border-0"
           >
