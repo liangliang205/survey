@@ -1,10 +1,17 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import { ConfigProvider } from 'antd'
 import { AuthProvider } from '@/components/providers/auth-provider'
 import { appWithTranslation } from 'next-i18next'
 import { I18nProvider } from '@/components/providers/i18n-provider'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export const metadata: Metadata = {
   title: 'Mobile Survey System',
