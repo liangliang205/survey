@@ -30,7 +30,7 @@
   "option_value": "选项值",
   "add_option": "添加选项",
   "save_survey": "保存问卷",
-  "upload": "上传",
+  "upload": "上传图片",
   "basic_settings": "基础设置",
   "existing_surveys": "现有问卷",
   "new_survey": "新建问卷",
@@ -87,5 +87,6 @@
   "name_min_length": "姓名至少需要2个字符",
   "invalid_phone_format": "手机号格式不正确",
   "invalid_email_format": "邮箱格式不正确",
-  "admin": "管理员"
+  "admin": "管理员",
+  "select_existing": "选择已有图片"
 }

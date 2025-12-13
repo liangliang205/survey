@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button, Form, Input, Switch, Card, Space, Select, Radio, Checkbox, Rate, DatePicker, Upload, message, Tabs, Modal, Image as AntImage } from 'antd'
+import { Button, Form, Input, Switch, Card, Space, Select, Radio, Checkbox, Rate, Upload, message, Tabs, Modal, Image as AntImage } from 'antd'
 import { PlusOutlined, DeleteOutlined, UpOutlined, DownOutlined, PictureOutlined, AppstoreOutlined } from '@ant-design/icons'
 import type { UploadProps } from 'antd'
 import { saveSurvey } from '@/action/save-survey'
@@ -19,7 +19,7 @@ interface OptionInput {
 interface QuestionInput {
   id?: string
   title: string
-  type: 'radio' | 'checkbox' | 'text' | 'rating' | 'date'
+  type: 'radio' | 'checkbox' | 'text' | 'rating'
   options: OptionInput[]
   order: number
   required: boolean
@@ -445,9 +445,9 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                       ) : null
                     }}
                   </Form.Item>
-                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageCover')}>选择已有</Button>
+                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageCover')} style={{ minWidth: '140px' }}>{t('select_existing')}</Button>
                   <Upload {...uploadCoverProps} showUploadList={false}>
-                    <Button icon={<PictureOutlined />}>{t('upload')}</Button>
+                    <Button icon={<PictureOutlined />} style={{ minWidth: '100px' }}>{t('upload')}</Button>
                   </Upload>
                 </Space>
               </Form.Item>
@@ -470,9 +470,9 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                       ) : null
                     }}
                   </Form.Item>
-                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageQuestions')}>选择已有</Button>
+                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageQuestions')} style={{ minWidth: '140px' }}>{t('select_existing')}</Button>
                   <Upload {...uploadQuestionsProps} showUploadList={false}>
-                    <Button icon={<PictureOutlined />}>{t('upload')}</Button>
+                    <Button icon={<PictureOutlined />} style={{ minWidth: '100px' }}>{t('upload')}</Button>
                   </Upload>
                 </Space>
               </Form.Item>
@@ -495,9 +495,9 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                       ) : null
                     }}
                   </Form.Item>
-                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageThanks')}>选择已有</Button>
+                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('bgImageThanks')} style={{ minWidth: '140px' }}>{t('select_existing')}</Button>
                   <Upload {...uploadThanksProps} showUploadList={false}>
-                    <Button icon={<PictureOutlined />}>{t('upload')}</Button>
+                    <Button icon={<PictureOutlined />} style={{ minWidth: '100px' }}>{t('upload')}</Button>
                   </Upload>
                 </Space>
               </Form.Item>
@@ -520,9 +520,9 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                       ) : null
                     }}
                   </Form.Item>
-                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('supportCardImage')}>选择已有</Button>
+                  <Button icon={<AppstoreOutlined />} onClick={() => openImageSelector('supportCardImage')} style={{ minWidth: '140px' }}>{t('select_existing')}</Button>
                   <Upload {...uploadSupportCardImageProps} showUploadList={false}>
-                    <Button icon={<PictureOutlined />}>{t('upload')}</Button>
+                    <Button icon={<PictureOutlined />} style={{ minWidth: '100px' }}>{t('upload')}</Button>
                   </Upload>
                 </Space>
               </Form.Item>
@@ -684,7 +684,6 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                           <Option value="checkbox">{t('checkbox')}</Option>
                           <Option value="text">{t('text')}</Option>
                           <Option value="rating">{t('rating')}</Option>
-                          <Option value="date">{t('date')}</Option>
                         </Select>
                       </Form.Item>
                       
@@ -765,7 +764,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       </div>
 
       <Modal 
-        title="选择图片" 
+        title={t('select_image')} 
         open={isImageModalOpen} 
         onCancel={() => setIsImageModalOpen(false)} 
         footer={null} 
@@ -790,7 +789,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
           ))}
           {imageList.length === 0 && (
             <div className="col-span-4 text-center py-8 text-gray-500">
-              暂无图片，请先上传
+              {t('no_images_upload')}
             </div>
           )}
         </div>

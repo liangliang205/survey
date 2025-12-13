@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import SurveyList from '@/components/admin/survey-list'
 import { SurveyEditor } from '@/components/admin/survey-editor'
-import { SurveyPreview } from '@/components/admin/survey-preview'
 import { Button, message, Divider } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { saveSurvey } from '@/action/save-survey'

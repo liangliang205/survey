@@ -1,7 +1,7 @@
 'use client'
 
 import { useSurveyStore } from './survey-context'
-import { Button, Radio, Checkbox, Input, Rate, DatePicker, message } from 'antd'
+import { Button, Radio, Checkbox, Input, Rate, message } from 'antd'
 import { useState } from 'react'
 import { submitAnswers } from '@/action/submit-survey'
 import { useRouter } from 'next/navigation'
@@ -43,7 +43,7 @@ export function QuestionPage() {
               style={{ width: '100%' }}
             >
               {question.options.map((opt: any) => (
-                <Radio key={opt.id} value={opt.value} className="block mb-3">
+                <Radio key={opt.id} value={opt.value} className="block mb-2">
                   {opt.value}
                 </Radio>
               ))}
@@ -58,7 +58,7 @@ export function QuestionPage() {
               style={{ width: '100%' }}
             >
               {question.options.map((opt: any) => (
-                <Checkbox key={opt.id} value={opt.value} className="block mb-3">
+                <Checkbox key={opt.id} value={opt.value} className="block mb-2">
                   {opt.value}
                 </Checkbox>
               ))}
@@ -89,8 +89,8 @@ export function QuestionPage() {
     }
 
     return (
-      <div key={question.id} className="mb-8 p-6 bg-white/50 rounded-xl border border-gray-100">
-        <h3 className="text-lg font-semibold mb-4">
+      <div key={question.id} className="mb-4 p-4 bg-white/50 rounded-xl border border-gray-100">
+        <h3 className="text-lg font-semibold mb-2">
           <span className="mr-2">{index + 1}.</span>
           {question.required && <span className="text-red-500 mr-1">*</span>}
           {question.title}
