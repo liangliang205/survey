@@ -31,19 +31,44 @@ export async function deleteSurvey(id: string) {
         bgImageCover: true,
         bgImageQuestions: true,
         bgImageThanks: true,
+        supportCardImage: true,
       },
     })
 
     // 删除数据库记录（关联数据按 schema 级联删除）
     await prisma.survey.delete({ where: { id } })
 
-    // 尝试删除上传的背景图文件
-    await Promise.all([
-      safeUnlinkByUrl(survey?.bgImage),
-      safeUnlinkByUrl(survey?.bgImageCover),
-      safeUnlinkByUrl(survey?.bgImageQuestions),
-      safeUnlinkByUrl(survey?.bgImageThanks),
-    ])
+    // 收集所有需要检查的图片路径
+    const imagesToCheck = [
+      survey?.bgImage,
+      survey?.bgImageCover,
+      survey?.bgImageQuestions,
+      survey?.bgImageThanks,
+      survey?.supportCardImage,
+    ].filter((url): url is string => !!url && isUploadUrl(url))
+
+    // 去重
+    const uniqueImages = Array.from(new Set(imagesToCheck))
+
+    for (const imgUrl of uniqueImages) {
+      // 检查是否还有其他问卷在使用这张图
+      const count = await prisma.survey.count({
+        where: {
+          OR: [
+            { bgImage: imgUrl },
+            { bgImageCover: imgUrl },
+            { bgImageQuestions: imgUrl },
+            { bgImageThanks: imgUrl },
+            { supportCardImage: imgUrl },
+          ],
+        },
+      })
+
+      // 如果没有其他问卷使用，则删除文件
+      if (count === 0) {
+        await safeUnlinkByUrl(imgUrl)
+      }
+    }
 
     revalidatePath('/admin')
     return { success: true }

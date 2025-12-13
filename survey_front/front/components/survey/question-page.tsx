@@ -149,8 +149,8 @@ export function QuestionPage() {
     >
       <div className="absolute inset-0 bg-black/30 fixed" />
       
-      <div className="relative z-10 w-full max-w-2xl my-auto">
-        <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 w-full mb-8">
+      <div className="relative z-10 w-full max-w-md my-auto">
+        <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl p-5 w-full mb-8">
           {survey.questions.map((q: any, idx: number) => renderQuestion(q, idx))}
 
           <div className="mt-8 flex justify-center">

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import { create } from 'zustand'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 
 const { Header, Sider, Content } = Layout
@@ -32,10 +32,14 @@ export default function AdminLayout({
   const pathname = usePathname()
   const selectedKey = useSiderStore((s) => s.selectedKey)
   const setSelectedKey = useSiderStore((s) => s.setSelectedKey)
+  const hasSetLang = useRef(false)
 
   useEffect(() => {
-    if (i18n.language !== 'zh-CN') {
-      i18n.changeLanguage('zh-CN')
+    if (!hasSetLang.current) {
+      if (i18n.language !== 'zh-CN') {
+        i18n.changeLanguage('zh-CN')
+      }
+      hasSetLang.current = true
     }
   }, [i18n])
 

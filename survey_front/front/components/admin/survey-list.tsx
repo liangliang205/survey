@@ -26,7 +26,7 @@ export default function SurveyList({ refreshFlag, onSelect }: { refreshFlag: num
   const handleDelete = async (id: string) => {
     const res = await deleteSurvey(id)
     if (res.success) {
-      message.success(t('message.success_created'))
+      message.success(t('message.success_deleted'))
       // 触发父组件刷新
       setData((prev) => prev.filter((s) => s.id !== id))
     } else {

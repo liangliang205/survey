@@ -36,6 +36,7 @@
   "new_survey": "新建问卷",
   "survey_configuration": "问卷配置",
   "message.success_created": "创建成功",
+  "message.success_deleted": "删除成功",
   "message.creation_failed": "创建失败",
   "qrcode": "二维码",
   "not_generated": "未生成",

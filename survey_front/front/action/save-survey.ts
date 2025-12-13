@@ -3,16 +3,17 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { Survey } from '@prisma/client'
 
 export async function saveSurvey(id: string | null, data: any) {
   const session = await auth()
   if (!session) {
     return { success: false, error: '未授权' }
   }
-
   try {
-    let survey
+    let survey: Survey
     if (id) {
+      // 更新问卷（保留问题与选项的ID，进行差异化更新）
       // 更新问卷（保留问题与选项的ID，进行差异化更新）
       survey = await prisma.survey.update({
         where: { id },

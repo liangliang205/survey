@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input, message } from 'antd'
 import { getUserInfoSchema } from './survey-context'
+import { PhoneInput } from './phone-input'
 import { UserInfo } from '@/lib/types'
 import { useSurveyStore } from './survey-context'
 import { useTranslation } from 'next-i18next'
@@ -69,7 +70,7 @@ export function UserInfoForm() {
       }}
     >
       <div className="absolute inset-0 bg-black/30" />
-      <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 max-w-md w-full">
+      <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-5 max-w-sm w-full">
         <h2 className="text-xl font-semibold mb-6">{t('personal_info')}</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
@@ -88,8 +89,15 @@ export function UserInfoForm() {
             <Controller
               name="phone"
               control={control}
-              render={({ field }) => (
-                <Input {...field} placeholder={t('enter_phone')} />
+              render={({ field: { onChange, name, value, onBlur, ref } }) => (
+                <PhoneInput
+                  name={name}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  ref={ref}
+                  error={errors.phone?.message}
+                />
               )}
             />
             {errors.phone && <div style={{ color: 'red' }}>{errors.phone.message}</div>}

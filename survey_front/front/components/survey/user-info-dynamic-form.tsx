@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { useTranslation } from 'next-i18next'
 import { submitUserInfo } from '@/action/submit-survey'
+import { PhoneInput } from './phone-input'
 
 type DynamicFormValues = Record<string, string>
 
@@ -31,7 +32,7 @@ const createDynamicSchema = (
         fieldSchema = fieldSchema.email(t('invalid_email'))
         break
       case 'phone':
-        fieldSchema = fieldSchema.regex(/^1[3-9]\d{9}$/, t('invalid_phone'))
+        fieldSchema = fieldSchema.regex(/^\+1\s\(\d{3}\)\s\d{3}-\d{4}$/, t('invalid_phone'))
         break
     }
 
@@ -112,7 +113,7 @@ export function UserInfoDynamicForm() {
         }}
       >
         <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 max-w-md w-full">
+        <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-5 max-w-sm w-full">
           <h2 className="text-xl font-semibold mb-6">{t('personal_info')}</h2>
           <div className="text-center text-gray-500">
             {t('no_user_info_fields_defined')}
@@ -145,30 +146,48 @@ export function UserInfoDynamicForm() {
       }}
     >
       <div className="absolute inset-0 bg-black/30" />
-      <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 max-w-md w-full">
+      <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-5 max-w-sm w-full">
         <h2 className="text-xl font-semibold mb-6">{t('personal_info')}</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           {survey.userInfoFields
             .sort((a, b) => a.order - b.order)
             .map((field) => (
               <div key={field.id} className="mb-4">
-                <label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   {field.title}
                   {field.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
                 <Controller
                   name={field.id}
                   control={control}
-                  render={({ field: controllerField }) => (
-                    <Input
-                      {...controllerField}
-                      placeholder={field.placeholder || t('enter_field', { field: field.title })}
-                      onChange={(e) => {
-                        controllerField.onChange(e)
-                        handleFieldChange(field.id, e.target.value)
-                      }}
-                    />
-                  )}
+                  render={({ field: controllerField }) => {
+                    if (field.type === 'phone') {
+                      return (
+                        <PhoneInput
+                          name={controllerField.name}
+                          value={controllerField.value}
+                          onChange={(val) => {
+                            controllerField.onChange(val)
+                            handleFieldChange(field.id, val)
+                          }}
+                          onBlur={controllerField.onBlur}
+                          ref={controllerField.ref}
+                          error={errors[field.id]?.message as string}
+                        />
+                      )
+                    }
+                    return (
+                      <Input
+                        {...controllerField}
+                        placeholder={field.placeholder || t('enter_field', { field: field.title })}
+                        onChange={(e) => {
+                          controllerField.onChange(e)
+                          handleFieldChange(field.id, e.target.value)
+                        }}
+                        status={errors[field.id] ? 'error' : ''}
+                      />
+                    )
+                  }}
                 />
                 {errors[field.id] && (
                   <div className="text-red-500 text-sm mt-1">

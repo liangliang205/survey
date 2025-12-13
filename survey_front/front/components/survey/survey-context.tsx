@@ -11,7 +11,7 @@ import { useTranslation } from 'next-i18next'
 // 创建一个函数来返回带翻译的 schema，而不是直接定义它
 export const getUserInfoSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(2, t('name_min_length')),
-  phone: z.string().regex(/^1[3-9]\d{9}$/, t('invalid_phone_format')),
+  phone: z.string().regex(/^\+1\s\(\d{3}\)\s\d{3}-\d{4}$/, t('invalid_phone_format')),
   email: z.string().email(t('invalid_email_format')).or(z.literal('')).default(''),
   department: z.string().optional(),
 }).catchall(z.string().optional())
