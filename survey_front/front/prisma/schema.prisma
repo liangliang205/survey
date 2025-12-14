@@ -44,6 +44,7 @@ model Survey {
   bgImageQuestions String?
   bgImageThanks    String?
   supportCardImage String?
+  redirectUrl      String?
   isActive    Boolean  @default(true)
   adminId     String
   admin       Admin    @relation(fields: [adminId], references: [id])

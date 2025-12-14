@@ -14,7 +14,7 @@ export function ThanksPage() {
   const handleBackToHome = () => {
     // 清除本地存储的问卷数据
     localStorage.removeItem('survey-storage')
-    router.push('/')
+    window.close()
   }
 
   return (
@@ -48,9 +48,6 @@ export function ThanksPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('submission_success')}</h2>
-            <p className="text-gray-600 mb-6">
-              {survey?.title ? t('thank_you_for_participation_with_title', { title: survey.title }) : t('thank_you_for_participation')}
-            </p>
           </div>
         </motion.div>
 

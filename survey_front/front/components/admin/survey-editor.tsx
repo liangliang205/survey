@@ -50,6 +50,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [imageList, setImageList] = useState<string[]>([])
   const [currentImageField, setCurrentImageField] = useState<string>('')
+  const [surveyMode, setSurveyMode] = useState<'normal' | 'redirect'>('normal')
   const { t } = useTranslation() // 添加这一行来获取 t 函数
   // 获取 onChange
   const onChange = (typeof arguments[0] === 'object' && 'onChange' in arguments[0]) ? arguments[0].onChange : undefined
@@ -87,7 +88,9 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
         bgImageQuestions: survey.bgImageQuestions,
         bgImageThanks: survey.bgImageThanks,
         supportCardImage: survey.supportCardImage,
+        redirectUrl: survey.redirectUrl,
       })
+      setSurveyMode(survey.redirectUrl ? 'redirect' : 'normal')
       setQuestions(
         survey.questions.map((q: any) => ({
           id: q.id,
@@ -423,8 +426,29 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
           <Card>
             <Form form={form} layout="vertical">
               <Form.Item name="title" label={t('survey_title')} rules={[{ required: true }]}>
-                <Input placeholder={t('survey_title_placeholder')} />
+                <Input />
               </Form.Item>
+
+              <Form.Item label={t('survey_mode')}>
+                <Radio.Group
+                  value={surveyMode}
+                  onChange={(e) => {
+                    setSurveyMode(e.target.value)
+                    if (e.target.value === 'normal') {
+                      form.setFieldValue('redirectUrl', '')
+                    }
+                  }}
+                >
+                  <Radio value="normal">{t('normal_survey')}</Radio>
+                  <Radio value="redirect">{t('direct_redirect')}</Radio>
+                </Radio.Group>
+              </Form.Item>
+
+              {surveyMode === 'redirect' && (
+                <Form.Item name="redirectUrl" label={t('redirect_url')} rules={[{ required: true, message: t('redirect_url_required') }]}>
+                  <Input placeholder={t('redirect_url_placeholder')} />
+                </Form.Item>
+              )}
               
               {/* 三页面独立背景设置 */}
               <Form.Item label={t('home_background') || '首页背景图'}>
@@ -533,7 +557,6 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
             </Form>
           </Card>
         </TabPane>
-        
         <TabPane tab={t('user_info_fields')} key="userinfo" forceRender>
           <Card 
             title={t('user_info_fields')} 
@@ -796,4 +819,5 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       </Modal>
     </div>
   )
+ 
 }

@@ -35,7 +35,6 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
             getInputRef={ref}
             className="w-full outline-none bg-transparent border-none p-0 text-gray-900 placeholder-gray-400 h-[22px]"
             format="(###) ###-####"
-            placeholder="(212) 444-4761"
             name={name}
             value={numericValue}
             onValueChange={(values) => {

@@ -88,5 +88,11 @@
   "invalid_phone_format": "手机号格式不正确",
   "invalid_email_format": "邮箱格式不正确",
   "admin": "管理员",
-  "select_existing": "选择已有图片"
+  "select_existing": "选择已有图片",
+  "survey_mode": "问卷模式",
+  "normal_survey": "普通问卷",
+  "direct_redirect": "跳转到其他链接",
+  "redirect_url": "跳转链接",
+  "redirect_url_placeholder": "请输入跳转链接，如 https://example.com",
+  "redirect_url_required": "请输入跳转链接"
 }

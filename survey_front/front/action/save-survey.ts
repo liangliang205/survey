@@ -24,6 +24,7 @@ export async function saveSurvey(id: string | null, data: any) {
           bgImageQuestions: data.bgImageQuestions,
           bgImageThanks: data.bgImageThanks,
           supportCardImage: data.supportCardImage,
+          redirectUrl: data.redirectUrl,
           isActive: data.isActive,
           updatedAt: new Date(),
           // 用户信息字段仍采用清空重建策略（标题变化会影响历史数据映射）
@@ -140,6 +141,7 @@ export async function saveSurvey(id: string | null, data: any) {
           bgImageQuestions: data.bgImageQuestions,
           bgImageThanks: data.bgImageThanks,
           supportCardImage: data.supportCardImage,
+          redirectUrl: data.redirectUrl,
           isActive: data.isActive,
           admin: {
             connect: {

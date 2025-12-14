@@ -49,7 +49,13 @@ export function CoverPage() {
             el.style.background = 'rgba(255, 255, 255, 0.22)'
             el.style.border = '1px solid rgba(255, 255, 255, 0.40)'
           }}
-          onClick={() => setStep('userInfo')}
+          onClick={() => {
+            if ((survey as any).redirectUrl) {
+              window.location.href = (survey as any).redirectUrl
+            } else {
+              setStep('userInfo')
+            }
+          }}
         >
           {t('start_filling')}
         </Button>

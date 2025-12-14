@@ -52,7 +52,7 @@
     "department_distribution": "Department Distribution",
     "average_score": "Average Score"
   },
-  "personal_info": "Personal Information",
+  "personal_info": "Information",
   "name": "Name",
   "email_optional": "Email (Optional)",
   "department_optional": "Department (Optional)",
@@ -66,7 +66,7 @@
   "enter_your_answer": "Please enter your answer",
   "previous": "Previous",
   "submit": "Submit",
-  "start_filling": "Start Filling",
+  "start_filling": "Start",
   "submission_success": "Submission Successful!",
   "thank_you_for_participation_with_title": "Thank you for participating! The \"{{title}}\" survey has been submitted successfully.",
   "thank_you_for_participation": "Thank you for participating! The survey has been submitted successfully.",
@@ -80,5 +80,11 @@
   "name_min_length": "Name must be at least 2 characters long",
   "invalid_phone_format": "Invalid phone number format",
   "invalid_email_format": "Invalid email format",
-  "admin": "Admin"
+  "admin": "Admin",
+  "survey_mode": "Survey Mode",
+  "normal_survey": "Normal Survey",
+  "direct_redirect": "Direct Redirect",
+  "redirect_url": "Redirect URL",
+  "redirect_url_placeholder": "https://example.com",
+  "redirect_url_required": "Please input redirect URL"
 }
