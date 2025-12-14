@@ -70,6 +70,14 @@ export async function deleteSurvey(id: string) {
       }
     }
 
+    // 删除二维码文件
+    try {
+      const qrcodePath = join(process.cwd(), 'public', 'qrcodes', `${id}.png`)
+      await unlink(qrcodePath)
+    } catch (e) {
+      // ignore if file not found
+    }
+
     revalidatePath('/admin')
     return { success: true }
   } catch (e) {
