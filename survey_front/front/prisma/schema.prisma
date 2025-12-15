@@ -40,7 +40,6 @@ model Admin {
 model Survey {
   id          String   @id @default(cuid())
   title       String
-  bgImage     String?
   // 为不同页面分别设置背景
   bgImageCover     String?
   bgImageQuestions String?
@@ -50,6 +49,7 @@ model Survey {
   supportButtonUrl  String? // 支持卡片按钮跳转链接
   redirectUrl      String?
   isActive    Boolean  @default(true)
+  deletedAt   DateTime? // 软删除时间
   adminId     String
   admin       Admin    @relation(fields: [adminId], references: [id])
   createdAt   DateTime @default(now())

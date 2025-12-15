@@ -18,7 +18,6 @@ export default function AdminPage() {
     const result = await saveSurvey(null, {
       title: 'Untitled Survey',
       isActive: true,
-      bgImage: '',
       questions: [],
       userInfoFields: []
     })

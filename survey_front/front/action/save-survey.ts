@@ -19,7 +19,6 @@ export async function saveSurvey(id: string | null, data: any) {
         where: { id },
         data: {
           title: data.title,
-          bgImage: data.bgImage,
           bgImageCover: data.bgImageCover,
           bgImageQuestions: data.bgImageQuestions,
           bgImageThanks: data.bgImageThanks,
@@ -147,7 +146,6 @@ export async function saveSurvey(id: string | null, data: any) {
       survey = await prisma.survey.create({
         data: {
           title: data.title,
-          bgImage: data.bgImage,
           bgImageCover: data.bgImageCover,
           bgImageQuestions: data.bgImageQuestions,
           bgImageThanks: data.bgImageThanks,

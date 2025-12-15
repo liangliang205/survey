@@ -34,11 +34,10 @@ async function deleteFile(url: string) {
 
 export async function deleteSurvey(id: string) {
   try {
-    // 先读取相关背景图路径
+    // 1. 先读取相关背景图路径
     const survey = await prisma.survey.findUnique({
       where: { id },
       select: {
-        bgImage: true,
         bgImageCover: true,
         bgImageQuestions: true,
         bgImageThanks: true,
@@ -46,27 +45,28 @@ export async function deleteSurvey(id: string) {
       },
     })
 
-    // 删除数据库记录（关联数据按 schema 级联删除）
-    await prisma.survey.delete({ where: { id } })
+    // 2. 软删除：更新 deletedAt 字段
+    await prisma.survey.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    })
 
-    // 收集所有需要检查的图片路径
+    // 3. 处理图片删除
     const imagesToCheck = [
-      survey?.bgImage,
       survey?.bgImageCover,
       survey?.bgImageQuestions,
       survey?.bgImageThanks,
       survey?.supportCardImage,
     ].filter((url): url is string => !!url && isUploadUrl(url))
 
-    // 去重
     const uniqueImages = Array.from(new Set(imagesToCheck))
 
     for (const imgUrl of uniqueImages) {
-      // 检查是否还有其他问卷在使用这张图
+      // 检查是否还有其他问卷在使用这张图 (排除当前问卷)
       const count = await prisma.survey.count({
         where: {
+          id: { not: id }, // 关键：排除当前问卷
           OR: [
-            { bgImage: imgUrl },
             { bgImageCover: imgUrl },
             { bgImageQuestions: imgUrl },
             { bgImageThanks: imgUrl },
@@ -81,7 +81,7 @@ export async function deleteSurvey(id: string) {
       }
     }
 
-    // 删除二维码文件 (尝试删除 OSS)
+    // 4. 删除二维码文件 (尝试删除 OSS)
     const ossClient = getOSSClient()
     if (ossClient) {
       try {

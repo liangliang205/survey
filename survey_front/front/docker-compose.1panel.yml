@@ -11,19 +11,28 @@ services:
     # 若在 1Panel 中单独配置环境变量，可删除此 environment 块
     environment:
       DATABASE_URL: file:./prisma/dev.db
-      NEXTAUTH_URL: http://106.53.56.21:3000
+      # 请修改为实际域名，例如 https://survey.example.com
+      NEXTAUTH_URL: http://47.251.248.144:3000
+      # 请生成一个随机字符串: openssl rand -base64 32
       NEXTAUTH_SECRET: "1e45547ff236895bd44e52da3e72ddd83f4e92dd977eb2745f6dbbb3d2cf7f57"
       NEXT_PUBLIC_MAX_UPLOAD_SIZE: "5242880"
       NODE_ENV: production
       PORT: 3000
+      # 阿里云 OSS 配置
+      OSS_REGION: oss-us-west-1
+      OSS_ACCESS_KEY_ID: LTAI5tCNX4aSUrRkWu4PX2S5
+      OSS_ACCESS_KEY_SECRET: S5uiDiv9KKpGe88p87nJVhT1bJuB6R
+      OSS_BUCKET: amazoncom-survey
+      # 初始管理员密码
+      ADMIN_PASSWORD: "SurveyAdmin@2025!"
     ports:
       - "3000:3000"
     # 注意：容器内路径必须与镜像一致（/app/...），否则数据不会生效
     volumes:
       - survey_sqlite_data:/app/prisma
-      # 绑定宿主机目录，便于直接查看/备份；请在 1Panel 中指向实际路径
-      - /data/survey/uploads:/app/public/uploads
-      - /data/survey/qrcodes:/app/public/qrcodes
+      # 本地存储已移除，无需挂载 uploads 和 qrcodes 目录
+      # - /data/survey/uploads:/app/public/uploads
+      # - /data/survey/qrcodes:/app/public/qrcodes
 
   # 一次性运行：在服务首次部署后，执行迁移并写入种子数据
   migrate:
@@ -32,6 +41,7 @@ services:
       target: builder
     environment:
       - DATABASE_URL=file:./prisma/dev.db
+      - ADMIN_PASSWORD=SurveyAdmin@2025!
     volumes:
       - survey_sqlite_data:/app/prisma
     command: sh -lc "pnpm prisma migrate deploy && pnpm db:seed"

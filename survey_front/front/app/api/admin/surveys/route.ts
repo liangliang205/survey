@@ -9,6 +9,7 @@ export async function GET() {
   }
 
   const surveys = await prisma.survey.findMany({
+    where: { deletedAt: null },
     include: {
       _count: {
         select: { submissions: true },
