@@ -88,6 +88,8 @@
   "invalid_phone_format": "手机号格式不正确",
   "invalid_email_format": "邮箱格式不正确",
   "admin": "管理员",
+  "select_image": "选择图片",
+  "no_images_upload": "暂无上传图片",
   "select_existing": "选择已有图片",
   "survey_mode": "问卷模式",
   "normal_survey": "普通问卷",

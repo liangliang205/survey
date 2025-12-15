@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button, Form, Input, Switch, Card, Space, Select, Radio, Checkbox, Rate, Upload, message, Tabs, Modal, Image as AntImage } from 'antd'
+import { Button, Form, Input, Switch, Card, Space, Select, Radio, Checkbox, Rate, Upload, message, Tabs, Modal, Image as AntImage, Spin } from 'antd'
 import { PlusOutlined, DeleteOutlined, UpOutlined, DownOutlined, PictureOutlined, AppstoreOutlined } from '@ant-design/icons'
 import type { UploadProps } from 'antd'
 import { saveSurvey } from '@/action/save-survey'
@@ -49,12 +49,14 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
   const [loading, setLoading] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [imageList, setImageList] = useState<string[]>([])
+  const [imageLoading, setImageLoading] = useState(false)
   const [currentImageField, setCurrentImageField] = useState<string>('')
   const [surveyMode, setSurveyMode] = useState<'normal' | 'redirect'>('normal')
   const [supportMode, setSupportMode] = useState<'default' | 'link'>('default')
   const { t } = useTranslation() // 添加这一行来获取 t 函数
 
   const fetchImages = async () => {
+    setImageLoading(true)
     try {
       const res = await fetch('/api/admin/uploads/list')
       const data = await res.json()
@@ -62,7 +64,9 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
         setImageList(data.files)
       }
     } catch (error) {
-      message.error('获取图片列表失败')
+      message.error(t('message.load_failed'))
+    } finally {
+      setImageLoading(false)
     }
   }
 
@@ -828,29 +832,31 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
         footer={null} 
         width={800}
       >
-        <div className="grid grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-2">
-          {imageList.map(url => (
-            <div 
-              key={url} 
-              className="cursor-pointer border hover:border-blue-500 p-2 rounded transition-all hover:shadow-md" 
-              onClick={() => handleSelectImage(url)}
-            >
-              <AntImage 
-                src={url} 
-                preview={false} 
-                style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: 4 }} 
-              />
-              <div className="text-xs text-gray-500 mt-1 truncate text-center">
-                {url.split('/').pop()}
+        <Spin spinning={imageLoading}>
+          <div className="grid grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-2">
+            {imageList.map(url => (
+              <div 
+                key={url} 
+                className="cursor-pointer border hover:border-blue-500 p-2 rounded transition-all hover:shadow-md" 
+                onClick={() => handleSelectImage(url)}
+              >
+                <AntImage 
+                  src={url} 
+                  preview={false} 
+                  style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: 4 }} 
+                />
+                <div className="text-xs text-gray-500 mt-1 truncate text-center">
+                  {url.split('/').pop()}
+                </div>
               </div>
-            </div>
-          ))}
-          {imageList.length === 0 && (
-            <div className="col-span-4 text-center py-8 text-gray-500">
-              {t('no_images_upload')}
-            </div>
-          )}
-        </div>
+            ))}
+            {!imageLoading && imageList.length === 0 && (
+              <div className="col-span-4 text-center py-8 text-gray-500">
+                {t('no_images_upload')}
+              </div>
+            )}
+          </div>
+        </Spin>
       </Modal>
     </div>
   )
