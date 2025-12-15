@@ -12,7 +12,7 @@ services:
     environment:
       DATABASE_URL: file:./prisma/dev.db
       # 请修改为实际域名，例如 https://survey.example.com
-      NEXTAUTH_URL: http://47.251.248.144:3000
+      NEXTAUTH_URL: https://www.amazoncom.site
       # 请生成一个随机字符串: openssl rand -base64 32
       NEXTAUTH_SECRET: 1e45547ff236895bd44e52da3e72ddd83f4e92dd977eb2745f6dbbb3d2cf7f57
       NEXT_PUBLIC_MAX_UPLOAD_SIZE: 5242880
