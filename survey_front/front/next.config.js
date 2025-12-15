@@ -18,6 +18,15 @@ const nextConfig = {
         hostname: '*.aliyuncs.com',
       },
     ],
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // 忽略 vm2 和 coffee-script，避免 ali-oss 依赖链引起的构建错误
+      'vm2': false,
+      'coffee-script': false,
+    };
+    return config;
   }
   
   // 添加重写规则，避免.locale文件请求出现双重扩展名
