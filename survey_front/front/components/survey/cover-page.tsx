@@ -16,8 +16,6 @@ export function CoverPage() {
       style={{
         backgroundImage: (survey as any).bgImageCover
           ? `url(${(survey as any).bgImageCover})`
-          : survey.bgImage
-          ? `url(${survey.bgImage})`
           : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',

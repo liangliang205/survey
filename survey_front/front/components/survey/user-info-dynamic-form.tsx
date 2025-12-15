@@ -132,13 +132,11 @@ export function UserInfoDynamicForm() {
   }
 
   return (
-    <div
-      className="relative min-h-screen p-6 flex items-center justify-center"
+        <div
+      className="relative min-h-screen w-full flex items-center justify-center p-6"
       style={{
-        backgroundImage: (survey as any).bgImageQuestions
-          ? `url(${(survey as any).bgImageQuestions})`
-          : (survey as any).bgImage
-          ? `url(${(survey as any).bgImage})`
+        backgroundImage: (survey as any).bgImageCover
+          ? `url(${(survey as any).bgImageCover})`
           : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -146,7 +144,7 @@ export function UserInfoDynamicForm() {
       }}
     >
       <div className="absolute inset-0 bg-black/30" />
-      <div className="relative z-10 bg-white/90 backdrop-blur rounded-2xl shadow-xl p-5 max-w-sm w-full">
+      <div className="relative z-10 w-full max-w-md bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8">
         <h2 className="text-xl font-semibold mb-6">{t('personal_info')}</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           {survey.userInfoFields

@@ -138,8 +138,6 @@ export function QuestionPage() {
       style={{
         backgroundImage: (survey as any).bgImageQuestions
           ? `url(${(survey as any).bgImageQuestions})`
-          : survey.bgImage
-          ? `url(${survey.bgImage})`
           : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',

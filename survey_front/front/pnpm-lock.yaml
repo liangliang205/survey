@@ -111,6 +111,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.17
         version: 4.1.17
+      '@types/ali-oss':
+        specifier: ^6.16.13
+        version: 6.16.13
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
@@ -741,6 +744,9 @@ packages:
   '@tootallnate/once@1.1.2':
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
     engines: {node: '>= 6'}
+
+  '@types/ali-oss@6.16.13':
+    resolution: {integrity: sha512-Nxxs9JYESnJcVBI9mNv+dFNnbdz15tKS15mwckZqSIM75ttb8GcNYgeNfKG9gsykSIDpbSqcSnEqxdV5vSlbDg==}
 
   '@types/bcryptjs@2.4.6':
     resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
@@ -3234,6 +3240,8 @@ snapshots:
       tailwindcss: 4.1.17
 
   '@tootallnate/once@1.1.2': {}
+
+  '@types/ali-oss@6.16.13': {}
 
   '@types/bcryptjs@2.4.6': {}
 

@@ -40,7 +40,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       data: {
         title: body.title,
         isActive: body.isActive,
-        bgImage: body.bgImage,
         supportCardImage: body.supportCardImage,
       },
       include: {

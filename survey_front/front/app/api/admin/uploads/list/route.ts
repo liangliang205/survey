@@ -16,7 +16,7 @@ export async function GET() {
     }
 
     try {
-      const res = await ossClient.list({ prefix: 'uploads/' })
+      const res = await ossClient.list({ prefix: 'uploads/', 'max-keys': 100 }, {})
       const objects = res.objects || []
       // 过滤图片后缀并返回完整 URL
       const bucket = process.env.OSS_BUCKET

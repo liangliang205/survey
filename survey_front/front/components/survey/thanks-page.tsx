@@ -26,8 +26,6 @@ export function ThanksPage() {
       style={{
         backgroundImage: (survey as any).bgImageThanks
           ? `url(${(survey as any).bgImageThanks})`
-          : survey?.bgImage
-          ? `url(${survey.bgImage})`
           : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
