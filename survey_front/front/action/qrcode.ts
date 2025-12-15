@@ -1,7 +1,6 @@
 'use server'
 import QRCode from 'qrcode'
-import { join } from 'path'
-import { existsSync, mkdirSync, writeFileSync } from 'fs'
+import { getOSSClient } from '@/lib/oss'
 
 const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000'
 
@@ -18,13 +17,20 @@ export async function generatePoster(surveyId: string, title: string) {
     },
   })
 
-  // 保存到 public
-  const dir = join(process.cwd(), 'public', 'qrcodes')
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
-  const fileName = `${surveyId}.png`
-  const absFile = join(dir, fileName)
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64')
-  writeFileSync(absFile, buffer)
+  const fileName = `${surveyId}.png`
 
-  return `/qrcodes/${fileName}` // 可直接访问
+  // 尝试上传到 OSS
+  const ossClient = getOSSClient()
+  if (!ossClient) {
+    throw new Error('OSS client not configured')
+  }
+
+  try {
+    const result = await ossClient.put(`qrcodes/${fileName}`, buffer)
+    return result.url
+  } catch (error) {
+    console.error('OSS upload qrcode failed:', error)
+    throw new Error('OSS upload qrcode failed')
+  }
 }

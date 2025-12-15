@@ -2,11 +2,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Form, Input, Button, Card, Upload, message, Image as AntImage } from 'antd'
+import { Form, Input, Button, Card, Upload, message, Image as AntImage, Tabs } from 'antd'
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { UploadProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useSettings } from '@/components/providers/settings-provider'
+import AccountList from '@/components/admin/account-list'
 
 export default function SettingsPage() {
   const { t } = useTranslation('common')
@@ -61,68 +62,85 @@ export default function SettingsPage() {
     showUploadList: false,
   }
 
+  const SystemSettingsForm = () => (
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={onFinish}
+    >
+      <Form.Item
+        name="appName"
+        label={t('app_name')}
+        rules={[{ required: true, message: t('validation.app_name_required') }]}
+      >
+        <Input />
+      </Form.Item>
+
+      <Form.Item
+        name="appDesc"
+        label={t('app_desc')}
+        rules={[{ required: true, message: t('validation.app_desc_required') }]}
+      >
+        <Input.TextArea rows={4} />
+      </Form.Item>
+
+      <Form.Item label={t('app_icon')}>
+        <div className="flex items-start gap-4">
+          <Form.Item name="appIcon" noStyle>
+            <Input type="hidden" />
+          </Form.Item>
+          <Form.Item shouldUpdate={(prev, curr) => prev.appIcon !== curr.appIcon} noStyle>
+            {({ getFieldValue }) => {
+              const url = getFieldValue('appIcon')
+              return url ? (
+                <div className="relative group">
+                  <AntImage
+                    src={url}
+                    width={100}
+                    height={100}
+                    style={{ objectFit: 'contain', border: '1px solid #eee', borderRadius: 8 }}
+                  />
+                  <div 
+                    className="absolute top-0 right-0 p-1 cursor-pointer bg-white/80 rounded-bl"
+                    onClick={() => form.setFieldValue('appIcon', '')}
+                  >
+                    <DeleteOutlined className="text-red-500" />
+                  </div>
+                </div>
+              ) : null
+            }}
+          </Form.Item>
+          <Upload {...uploadProps}>
+            <Button icon={<UploadOutlined />}>{t('upload_icon')}</Button>
+          </Upload>
+        </div>
+      </Form.Item>
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" loading={loading}>
+          {t('save_settings')}
+        </Button>
+      </Form.Item>
+    </Form>
+  )
+
+  const items = [
+    {
+      key: 'system',
+      label: t('system_settings'),
+      children: <SystemSettingsForm />,
+    },
+    {
+      key: 'accounts',
+      label: t('account_management'),
+      children: <AccountList />,
+    },
+  ]
+
   return (
     <div className="p-6">
-      <Card title={t('system_settings')}>
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-        >
-          <Form.Item
-            name="appName"
-            label={t('app_name')}
-            rules={[{ required: true, message: t('validation.app_name_required') }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="appDesc"
-            label={t('app_desc')}
-            rules={[{ required: true, message: t('validation.app_desc_required') }]}
-          >
-            <Input.TextArea rows={4} />
-          </Form.Item>
-
-          <Form.Item label={t('app_icon')}>
-            <div className="flex items-start gap-4">
-              <Form.Item name="appIcon" noStyle>
-                <Input type="hidden" />
-              </Form.Item>
-              <Form.Item shouldUpdate={(prev, curr) => prev.appIcon !== curr.appIcon} noStyle>
-                {({ getFieldValue }) => {
-                  const url = getFieldValue('appIcon')
-                  return url ? (
-                    <div className="relative group">
-                      <AntImage
-                        src={url}
-                        width={100}
-                        height={100}
-                        style={{ objectFit: 'contain', border: '1px solid #eee', borderRadius: 8 }}
-                      />
-                      <div 
-                        className="absolute top-0 right-0 p-1 cursor-pointer bg-white/80 rounded-bl"
-                        onClick={() => form.setFieldValue('appIcon', '')}
-                      >
-                        <DeleteOutlined className="text-red-500" />
-                      </div>
-                    </div>
-                  ) : null
-                }}
-              </Form.Item>
-              <Upload {...uploadProps}>
-                <Button icon={<UploadOutlined />}>{t('upload_icon')}</Button>
-              </Upload>
-            </div>
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              {t('save_settings')}
-            </Button>
-          </Form.Item>
-        </Form>
+      <Card>
+        <Tabs items={items} />
       </Card>
     </div>
   )

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
 import { auth } from '@/lib/auth'
+import { getOSSClient } from '@/lib/oss'
 
 export async function POST(req: NextRequest) {
   const session = await auth()
@@ -29,11 +28,19 @@ export async function POST(req: NextRequest) {
     .replace(/^-+|-+$/g, '') || 'file'
   const filename = `${Date.now()}-${base}${ext}`
 
-  const dir = join(process.cwd(), 'public/uploads')
-  await mkdir(dir, { recursive: true })
-  const path = join(dir, filename)
+  // 尝试使用 OSS 上传
+  const ossClient = getOSSClient()
+  if (!ossClient) {
+    return NextResponse.json({ error: 'OSS client not configured' }, { status: 500 })
+  }
 
-  await writeFile(path, buffer)
-
-  return NextResponse.json({ url: `/uploads/${filename}` })
+  try {
+    // 上传到 OSS，路径加一个前缀 uploads/
+    const result = await ossClient.put(`uploads/${filename}`, buffer)
+    // 假设 Bucket 设置为公共读，直接返回 URL
+    return NextResponse.json({ url: result.url })
+  } catch (error) {
+    console.error('OSS upload failed:', error)
+    return NextResponse.json({ error: 'Upload to OSS failed' }, { status: 500 })
+  }
 }

@@ -8,11 +8,14 @@ async function main() {
   
   await prisma.admin.upsert({
     where: { username: 'admin' },
-    update: {},
+    update: {
+      role: 'SUPER_ADMIN'
+    },
     create: {
       username: 'admin',
       password: hashedPassword,
       name: '系统管理员',
+      role: 'SUPER_ADMIN',
     },
   })
   

@@ -3,21 +3,32 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { unlink } from 'fs/promises'
-import { join } from 'path'
+import { getOSSClient } from '@/lib/oss'
 
 function isUploadUrl(url?: string | null) {
-  return !!url && (url.startsWith('/uploads/') || url.startsWith('uploads/'))
+  if (!url) return false
+  // 本地上传路径
+  if (url.startsWith('/uploads/') || url.startsWith('uploads/')) return true
+  // OSS 路径 (简单判断包含 aliyuncs.com)
+  if (url.includes('aliyuncs.com')) return true
+  return false
 }
 
-async function safeUnlinkByUrl(url?: string | null) {
-  try {
-    if (!isUploadUrl(url)) return
-    const relative = url!.startsWith('/') ? url!.slice(1) : url!
-    const abs = join(process.cwd(), 'public', relative)
-    await unlink(abs)
-  } catch (err) {
-    // ignore file not found
+async function deleteFile(url: string) {
+  const ossClient = getOSSClient()
+  
+  // 1. 尝试删除 OSS 文件
+  if (ossClient && url.includes('aliyuncs.com')) {
+    try {
+      // 从 URL 中提取 object name
+      // 例如: https://bucket.oss-cn-hangzhou.aliyuncs.com/uploads/xxx.jpg -> uploads/xxx.jpg
+      const urlObj = new URL(url)
+      const path = urlObj.pathname.startsWith('/') ? urlObj.pathname.slice(1) : urlObj.pathname
+      await ossClient.delete(path)
+      return
+    } catch (e) {
+      console.error('Delete OSS file failed:', e)
+    }
   }
 }
 
@@ -66,16 +77,18 @@ export async function deleteSurvey(id: string) {
 
       // 如果没有其他问卷使用，则删除文件
       if (count === 0) {
-        await safeUnlinkByUrl(imgUrl)
+        await deleteFile(imgUrl)
       }
     }
 
-    // 删除二维码文件
-    try {
-      const qrcodePath = join(process.cwd(), 'public', 'qrcodes', `${id}.png`)
-      await unlink(qrcodePath)
-    } catch (e) {
-      // ignore if file not found
+    // 删除二维码文件 (尝试删除 OSS)
+    const ossClient = getOSSClient()
+    if (ossClient) {
+      try {
+        await ossClient.delete(`qrcodes/${id}.png`)
+      } catch (e) {
+        // ignore
+      }
     }
 
     revalidatePath('/admin')

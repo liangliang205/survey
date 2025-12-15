@@ -10,6 +10,14 @@ const nextConfig = {
     locales: ['en', 'zh-CN'],
     defaultLocale: 'zh-CN',
     localeDetection: false
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.aliyuncs.com',
+      },
+    ],
   }
   
   // 添加重写规则，避免.locale文件请求出现双重扩展名

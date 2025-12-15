@@ -42,14 +42,14 @@ export default function LoginPage() {
             name="username"
             rules={[{ required: true, message: '请输入用户名' }]}
           >
-            <Input placeholder="admin" />
+            <Input/>
           </Form.Item>
           <Form.Item
             label="密码"
             name="password"
             rules={[{ required: true, message: '请输入密码' }]}
           >
-            <Input.Password placeholder="admin123" />
+            <Input.Password />
           </Form.Item>
           <Button type="primary" htmlType="submit" block loading={loading}>
             登录

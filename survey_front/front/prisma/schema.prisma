@@ -26,13 +26,15 @@ model Account {
 }
 
 model Admin {
-  id        String    @id @default(cuid())
-  username  String    @unique
-  password  String
-  name      String? // 显示名称
-  createdAt DateTime  @default(now())
-  accounts  Account[]
-  surveys   Survey[]
+  id           String    @id @default(cuid())
+  username     String    @unique
+  password     String
+  name         String? // 显示名称
+  role         String    @default("ADMIN") // SUPER_ADMIN, ADMIN
+  loginVersion Int       @default(0) // 用于控制单点登录
+  createdAt    DateTime  @default(now())
+  accounts     Account[]
+  surveys      Survey[]
 }
 
 model Survey {

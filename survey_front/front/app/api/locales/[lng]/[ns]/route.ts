@@ -8,7 +8,9 @@ export async function GET(
   { params }: { params: { lng: string; ns: string } }
 ) {
   try {
-    const filePath = join(process.cwd(), 'app/api/locales', params.lng, `${params.ns}.json`);
+    // 兼容处理：如果请求的是 zh，映射到 zh-CN
+    const lng = params.lng === 'zh' ? 'zh-CN' : params.lng;
+    const filePath = join(process.cwd(), 'app/api/locales', lng, `${params.ns}.json`);
     const fileContents = await readFile(filePath, 'utf8');
     const jsonData = JSON.parse(fileContents);
     

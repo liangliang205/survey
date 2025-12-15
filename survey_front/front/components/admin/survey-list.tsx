@@ -18,8 +18,20 @@ export default function SurveyList({ refreshFlag, onSelect }: { refreshFlag: num
   useEffect(() => {
     setLoading(true)
     fetch('/api/admin/surveys')
-      .then((r) => r.json())
-      .then(setData)
+      .then(async (r) => {
+        if (r.ok) {
+          const list = await r.json()
+          if (Array.isArray(list)) {
+            setData(list)
+          } else {
+            setData([])
+          }
+        } else {
+          // Handle error or unauthorized
+          setData([])
+        }
+      })
+      .catch(() => setData([]))
       .finally(() => setLoading(false))
   }, [refreshFlag])
 

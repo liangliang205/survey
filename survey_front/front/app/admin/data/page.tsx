@@ -19,8 +19,17 @@ export default function DataPage() {
   useLayoutEffect(() => {
     fetch('/api/admin/surveys')
       .then((r) => r.json())
-      .then(setSurveys)
-      .catch(() => message.error(t('message.creation_failed')))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setSurveys(data)
+        } else {
+          setSurveys([])
+        }
+      })
+      .catch(() => {
+        setSurveys([])
+        message.error(t('message.creation_failed'))
+      })
   }, [])
 
   // 获取选中问卷的数据

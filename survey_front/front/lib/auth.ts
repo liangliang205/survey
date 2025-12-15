@@ -35,10 +35,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
+        // 登录成功，更新 loginVersion
+        const updatedAdmin = await prisma.admin.update({
+          where: { id: admin.id },
+          data: { loginVersion: { increment: 1 } },
+        })
+
         return {
-          id: admin.id,
-          name: admin.name || admin.username,
-          email: admin.username,
+          id: updatedAdmin.id,
+          name: updatedAdmin.name || updatedAdmin.username,
+          email: updatedAdmin.username,
+          loginVersion: updatedAdmin.loginVersion,
+          role: updatedAdmin.role,
         }
       },
     }),
@@ -47,15 +55,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // 初始登录
       if (user) {
         token.id = user.id
+        token.loginVersion = (user as any).loginVersion
+        token.role = (user as any).role
       }
+
+      // 每次请求检查数据库中的 loginVersion
+      if (token.id) {
+        const admin = await prisma.admin.findUnique({
+          where: { id: token.id as string },
+          select: { loginVersion: true, role: true },
+        })
+
+        // 如果数据库中的版本号与 token 中的不一致，说明有新的登录
+        if (!admin || admin.loginVersion !== token.loginVersion) {
+          return null // 这会导致 session 失效
+        }
+        
+        // 更新 role，防止数据库修改后 session 中还是旧的
+        token.role = admin.role
+      }
+
       return token
     },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string
+        // @ts-ignore
+        session.user.role = token.role as string
       }
       return session
     },
