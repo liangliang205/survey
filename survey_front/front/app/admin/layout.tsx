@@ -1,13 +1,14 @@
 'use client'
 
 import { Layout, Menu, Dropdown, Button } from 'antd'
-import { UserOutlined, FormOutlined, QrcodeOutlined, BarChartOutlined, DownOutlined } from '@ant-design/icons'
+import { UserOutlined, FormOutlined, QrcodeOutlined, BarChartOutlined, DownOutlined, SettingOutlined } from '@ant-design/icons'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import { create } from 'zustand'
 import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
+import { useSettings } from '@/components/providers/settings-provider'
 
 const { Header, Sider, Content } = Layout
 
@@ -30,6 +31,7 @@ export default function AdminLayout({
 
   const { t, i18n } = useTranslation('common')
   const pathname = usePathname()
+  const { settings } = useSettings()
   const selectedKey = useSiderStore((s) => s.selectedKey)
   const setSelectedKey = useSiderStore((s) => s.setSelectedKey)
   const hasSetLang = useRef(false)
@@ -59,6 +61,11 @@ export default function AdminLayout({
       icon: <QrcodeOutlined />,
       label: <Link href="/admin/qrcode">{t('qrcode')}</Link>,
     },
+       {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: <Link href="/admin/settings">{t('system_settings')}</Link>,
+    },
   ]
 
   const languageItems = [
@@ -83,6 +90,8 @@ export default function AdminLayout({
       setSelectedKey('data')
     } else if (pathname.startsWith('/admin/qrcode')) {
       setSelectedKey('qrcode')
+    } else if (pathname.startsWith('/admin/settings')) {
+      setSelectedKey('settings')
     } else {
       setSelectedKey('dashboard')
     }
@@ -92,7 +101,9 @@ export default function AdminLayout({
     <Layout className="min-h-screen">
       <Sider width={200} theme="light">
         <div className="flex items-center justify-center h-16 border-b">
-          <h2 className="text-lg font-bold">{t('basic_settings')}</h2>
+          <h2 className="text-lg font-bold truncate px-4" title={settings?.appName}>
+            {settings?.appName || t('basic_settings')}
+          </h2>
         </div>
         <Menu
           mode="inline"

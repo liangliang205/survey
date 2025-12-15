@@ -24,6 +24,8 @@ export async function saveSurvey(id: string | null, data: any) {
           bgImageQuestions: data.bgImageQuestions,
           bgImageThanks: data.bgImageThanks,
           supportCardImage: data.supportCardImage,
+          supportButtonText: data.supportButtonText,
+          supportButtonUrl: data.supportButtonUrl,
           redirectUrl: data.redirectUrl,
           isActive: data.isActive,
           updatedAt: new Date(),
@@ -132,6 +134,15 @@ export async function saveSurvey(id: string | null, data: any) {
         }
       }
     } else {
+      // 验证 Admin 是否存在
+      const adminExists = await prisma.admin.findUnique({
+        where: { id: session.user.id }
+      })
+
+      if (!adminExists) {
+        return { success: false, error: '用户不存在，请重新登录' }
+      }
+
       // 创建新问卷
       survey = await prisma.survey.create({
         data: {
@@ -141,6 +152,8 @@ export async function saveSurvey(id: string | null, data: any) {
           bgImageQuestions: data.bgImageQuestions,
           bgImageThanks: data.bgImageThanks,
           supportCardImage: data.supportCardImage,
+          supportButtonText: data.supportButtonText,
+          supportButtonUrl: data.supportButtonUrl,
           redirectUrl: data.redirectUrl,
           isActive: data.isActive,
           admin: {

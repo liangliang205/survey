@@ -12,7 +12,17 @@ export function ContactSupportCard() {
   const setStep = useSurveyStore((state) => state.setStep)
 
   const handleContact = () => {
-    setStep('questions')
+    let supportUrl = (survey as any).supportButtonUrl
+    if (supportUrl) {
+      supportUrl = supportUrl.trim()
+      // 自动补全协议头
+      if (!/^https?:\/\//i.test(supportUrl)) {
+        supportUrl = `https://${supportUrl}`
+      }
+      window.location.href = supportUrl
+    } else {
+      setStep('questions')
+    }
   }
 
   const handleClose = () => {
@@ -64,7 +74,7 @@ export function ContactSupportCard() {
             onClick={handleContact}
             className="w-full bg-blue-600 hover:bg-blue-700"
           >
-            {'Contact Support'}
+            {(survey as any).supportButtonText || 'Contact Support'}
           </Button>
         </div>
       </div>

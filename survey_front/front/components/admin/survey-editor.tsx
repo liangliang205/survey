@@ -41,7 +41,7 @@ interface SurveyEditorProps {
   onChange?: (editingSurvey: any) => void
 }
 
-export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
+export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
   const [form] = Form.useForm()
   const [activeTab, setActiveTab] = useState('basic')
   const [questions, setQuestions] = useState<QuestionInput[]>([])
@@ -51,9 +51,8 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
   const [imageList, setImageList] = useState<string[]>([])
   const [currentImageField, setCurrentImageField] = useState<string>('')
   const [surveyMode, setSurveyMode] = useState<'normal' | 'redirect'>('normal')
+  const [supportMode, setSupportMode] = useState<'default' | 'link'>('default')
   const { t } = useTranslation() // 添加这一行来获取 t 函数
-  // 获取 onChange
-  const onChange = (typeof arguments[0] === 'object' && 'onChange' in arguments[0]) ? arguments[0].onChange : undefined
 
   const fetchImages = async () => {
     try {
@@ -88,9 +87,12 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
         bgImageQuestions: survey.bgImageQuestions,
         bgImageThanks: survey.bgImageThanks,
         supportCardImage: survey.supportCardImage,
+        supportButtonText: survey.supportButtonText,
+        supportButtonUrl: survey.supportButtonUrl,
         redirectUrl: survey.redirectUrl,
       })
       setSurveyMode(survey.redirectUrl ? 'redirect' : 'normal')
+      setSupportMode(survey.supportButtonUrl ? 'link' : 'default')
       setQuestions(
         survey.questions.map((q: any) => ({
           id: q.id,
@@ -298,6 +300,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       
       const surveyData = {
         ...values,
+        supportButtonUrl: supportMode === 'link' ? values.supportButtonUrl : '',
         questions: questions.map(q => ({
           ...q,
           options: q.options || []
@@ -362,24 +365,25 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
       }
     },
   }
-    const uploadQuestionsProps: UploadProps = {
-      name: 'file',
-      action: '/api/upload',
-      headers: { authorization: 'authorization-text' },
-      onChange(info) {
-        if (info.file.status === 'done') {
-          const url = info.file.response?.url
-          if (url) {
-            form.setFieldValue('bgImageQuestions', url)
-            message.success('上传成功')
-          } else {
-            message.error('上传失败')
-          }
-        } else if (info.file.status === 'error') {
+
+  const uploadQuestionsProps: UploadProps = {
+    name: 'file',
+    action: '/api/upload',
+    headers: { authorization: 'authorization-text' },
+    onChange(info) {
+      if (info.file.status === 'done') {
+        const url = info.file.response?.url
+        if (url) {
+          form.setFieldValue('bgImageQuestions', url)
+          message.success('上传成功')
+        } else {
           message.error('上传失败')
         }
-      },
-    }
+      } else if (info.file.status === 'error') {
+        message.error('上传失败')
+      }
+    },
+  }
 
   const uploadSupportCardImageProps: UploadProps = {
     name: 'file',
@@ -421,10 +425,10 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
 
   return (
      <div className="space-y-6">
+      <Form form={form} layout="vertical">
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab={t('basic_settings')} key="basic" forceRender>
           <Card>
-            <Form form={form} layout="vertical">
               <Form.Item name="title" label={t('survey_title')} rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
@@ -554,7 +558,6 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
               <Form.Item name="isActive" label={t('is_active')} valuePropName="checked">
                 <Switch />
               </Form.Item>
-            </Form>
           </Card>
         </TabPane>
         <TabPane tab={t('user_info_fields')} key="userinfo" forceRender>
@@ -638,6 +641,37 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
                   </Card>
                 ))}
               </div>
+            )}
+          </Card>
+
+          <Card title={t('support_page_settings') || '支持页面设置'} className="mt-4">
+            <Form.Item label={t('support_mode') || '按钮行为模式'}>
+              <Radio.Group 
+                value={supportMode} 
+                onChange={e => {
+                  setSupportMode(e.target.value)
+                  if (e.target.value === 'default') {
+                    form.setFieldValue('supportButtonUrl', '')
+                  }
+                }}
+              >
+                <Radio value="default">{t('enter_survey') || '进入问卷'}</Radio>
+                <Radio value="link">{t('external_link') || '跳转链接'}</Radio>
+              </Radio.Group>
+            </Form.Item>
+            
+            <Form.Item name="supportButtonText" label={t('support_button_text') || '支持按钮文字'}>
+              <Input placeholder={t('support_button_text_placeholder') || '默认为 Contact Support'} />
+            </Form.Item>
+
+            {supportMode === 'link' && (
+              <Form.Item 
+                name="supportButtonUrl" 
+                label={t('support_button_url') || '支持按钮跳转链接'}
+                rules={[{ required: true, message: t('support_button_url_required') || '请输入跳转链接' }]}
+              >
+                <Input placeholder={t('support_button_url_placeholder') || '请输入跳转链接'} />
+              </Form.Item>
             )}
           </Card>
         </TabPane>
@@ -779,6 +813,7 @@ export function SurveyEditor({ survey, onSave }: SurveyEditorProps) {
           </Card>
         </TabPane>
       </Tabs>
+      </Form>
       
       <div className="flex justify-end">
         <Button type="primary" onClick={handleSave} loading={loading}>

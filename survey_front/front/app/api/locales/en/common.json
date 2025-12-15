@@ -86,5 +86,18 @@
   "direct_redirect": "Direct Redirect",
   "redirect_url": "Redirect URL",
   "redirect_url_placeholder": "https://example.com",
-  "redirect_url_required": "Please input redirect URL"
+  "redirect_url_required": "Please input redirect URL",
+  "system_settings": "System Settings",
+  "app_name": "App Name",
+  "app_desc": "App Description",
+  "app_icon": "App Icon",
+  "upload_icon": "Upload Icon",
+  "save_settings": "Save Settings",
+  "message.load_failed": "Failed to load settings",
+  "message.save_success": "Settings saved successfully",
+  "message.save_failed": "Failed to save settings",
+  "message.upload_success": "Upload successful",
+  "message.upload_failed": "Upload failed",
+  "validation.app_name_required": "Please input App Name!",
+  "validation.app_desc_required": "Please input App Description!"
 }

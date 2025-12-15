@@ -44,6 +44,8 @@ model Survey {
   bgImageQuestions String?
   bgImageThanks    String?
   supportCardImage String?
+  supportButtonText String? // 支持卡片按钮文字
+  supportButtonUrl  String? // 支持卡片按钮跳转链接
   redirectUrl      String?
   isActive    Boolean  @default(true)
   adminId     String
@@ -95,6 +97,15 @@ model Option {
   order      Int      @default(0)
 
   @@index([questionId])
+}
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  appName     String   @default("Mobile Survey System")
+  appDesc     String   @default("Lightweight full-stack survey solution")
+  appIcon     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Submission {

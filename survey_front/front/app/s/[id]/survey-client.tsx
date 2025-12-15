@@ -2,7 +2,6 @@
 
 import { useSurveyStore } from '@/components/survey/survey-context'
 import { CoverPage } from '@/components/survey/cover-page'
-import { UserInfoForm } from '@/components/survey/user-info-form'
 import { UserInfoDynamicForm } from '@/components/survey/user-info-dynamic-form'
 import { QuestionPage } from '@/components/survey/question-page'
 import { ThanksPage } from '@/components/survey/thanks-page'
@@ -37,10 +36,7 @@ export default function SurveyClient() {
       case 'cover':
         return <CoverPage />
       case 'userInfo':
-        // 如果有自定义用户信息字段则使用动态表单，否则使用默认表单
-        return survey.userInfoFields && survey.userInfoFields.length > 0 
-          ? <UserInfoDynamicForm /> 
-          : <UserInfoForm />
+        return <UserInfoDynamicForm />
       case 'contactSupport':
         return <ContactSupportCard />
       case 'questions':

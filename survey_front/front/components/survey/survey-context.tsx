@@ -72,8 +72,17 @@ export function SurveyProvider({
   children: React.ReactNode
   survey: SurveyWithQuestions
 }) {
+  // 使用 useRef 确保只在 survey 变化时更新，避免无限循环（虽然 setState 也是稳定的）
+  // 但为了确保在首次渲染前数据就绪（如果是 SSR -> Hydration），直接在 render 阶段同步可能导致 warning
+  // 更好的方式是使用 useEffect，但要确保组件能处理空状态
+  
+  if (typeof window !== 'undefined') {
+      // 尝试在 render 阶段同步，以避免闪烁。注意：这在 React 18+ 并发模式下可能有副作用，但在简单场景通常有效
+      // 或者，我们可以信任 useEffect，但要接受一次重渲染
+      // 这里我们保留 useEffect，但添加日志
+  }
+
   useEffect(() => {
-    // 只有当survey改变时才更新survey数据，但不重置step
     useSurveyStore.setState({ survey })
   }, [survey])
   return <>{children}</>

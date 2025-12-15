@@ -5,6 +5,8 @@ import { ConfigProvider } from 'antd'
 import { AuthProvider } from '@/components/providers/auth-provider'
 import { appWithTranslation } from 'next-i18next'
 import { I18nProvider } from '@/components/providers/i18n-provider'
+import { SettingsProvider } from '@/components/providers/settings-provider'
+import { prisma } from '@/lib/prisma'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -13,9 +15,20 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
-export const metadata: Metadata = {
-  title: 'Mobile Survey System',
-  description: 'Lightweight full-stack survey solution',
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const settings = await prisma.systemSetting.findFirst()
+    return {
+      title: settings?.appName || 'Mobile Survey System',
+      description: settings?.appDesc || 'Lightweight full-stack survey solution',
+      icons: settings?.appIcon ? { icon: settings.appIcon } : undefined,
+    }
+  } catch (e) {
+    return {
+      title: 'Mobile Survey System',
+      description: 'Lightweight full-stack survey solution',
+    }
+  }
 }
 
 export default function RootLayout({
@@ -36,7 +49,9 @@ export default function RootLayout({
                 },
               }}
             >
-              <AuthProvider>{children}</AuthProvider>
+              <SettingsProvider>
+                <AuthProvider>{children}</AuthProvider>
+              </SettingsProvider>
             </ConfigProvider>
           </AntdRegistry>
         </I18nProvider>
