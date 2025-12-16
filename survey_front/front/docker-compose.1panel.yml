@@ -5,7 +5,9 @@ version: '3.8'
 # 再在 1Panel 界面里设置环境变量与宿主机卷路径。
 services:
   survey-app:
-    build: .
+    # 改为使用预构建的镜像，不再在服务端构建
+    image: liangliang205/front:latest
+    # build: .
     container_name: survey-app
     restart: unless-stopped
     # 若在 1Panel 中单独配置环境变量，可删除此 environment 块

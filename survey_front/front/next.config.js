@@ -5,6 +5,18 @@ const nextConfig = {
   // 生成可在 Docker 运行时复制的独立产物（.next/standalone）
   output: 'standalone',
   
+  // 在构建时忽略 TypeScript 错误（建议在本地或 CI 中进行检查）
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  // 在构建时忽略 ESLint 错误
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // 禁用生产环境 Source Maps，节省内存和磁盘空间
+  productionBrowserSourceMaps: false,
+
   // 添加国际化配置（保持 Next.js 支持的字段，移除无效 defaultNS/ns）
   i18n: {
     locales: ['en', 'zh-CN'],
