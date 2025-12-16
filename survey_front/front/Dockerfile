@@ -23,8 +23,6 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 ENV CI=true
-# 增加 Node.js 内存限制，防止构建时内存溢出
-ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN apk add --no-cache libc6-compat openssl
 
 # 从 deps 阶段复制已安装的 node_modules 和生成的 prisma client

@@ -40,9 +40,11 @@ services:
 
   # 一次性运行：在服务首次部署后，执行迁移并写入种子数据
   migrate:
-    build:
-      context: .
-      target: builder
+    # 使用相同的预构建镜像，避免构建
+    image: liangliang205/front:latest
+    # build:
+    #   context: .
+    #   target: builder
     environment:
       - DATABASE_URL=file:./prisma/dev.db
       - ADMIN_PASSWORD=SurveyAdmin@2025!
