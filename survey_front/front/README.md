@@ -5,24 +5,31 @@
 ## ✨ 主要功能
 
 *   **问卷管理**：创建、编辑、删除问卷，支持多种题型（单选、多选、文本、评分）。
+*   **高级个性化**：
+    *   **背景定制**：支持分别为封面页、内容页、感谢页设置独立的背景图片。
+    *   **支持卡片**：可配置支持卡片图片、按钮文字及跳转链接。
+    *   **用户信息采集**：自定义用户信息采集字段（如姓名、手机号等），支持必填设置与排序。
 *   **可视化编辑器**：直观的问卷编辑器，支持拖拽排序、实时预览。
-*   **个性化设置**：支持自定义封面图、背景图（首页、内容页、感谢页）、支持卡片图片。
+*   **系统管理**：
+    *   **系统设置**：支持配置系统名称、描述、Logo 等信息。
+    *   **账号管理**：支持多管理员账号管理，包含角色权限控制。
+    *   **回收站**：问卷软删除机制，支持误删恢复或永久删除。
 *   **图片存储**：集成阿里云 OSS，所有上传的图片直接存储在云端，无需占用本地服务器空间。
 *   **多语言支持**：后台管理界面支持中英文切换 (i18n)。
-*   **数据收集**：实时收集用户提交的问卷数据。
+*   **数据收集**：实时收集用户提交的问卷数据，支持导出。
 *   **二维码生成**：自动生成问卷推广二维码。
-*   **系统设置**：支持配置系统名称、描述、Logo 等信息。
 *   **响应式设计**：完美适配桌面端和移动端。
 
 ## 🛠️ 技术栈
 
-*   **框架**: [Next.js 14](https://nextjs.org/) (App Router)
+*   **框架**: [Next.js 14.2](https://nextjs.org/) (App Router)
 *   **语言**: TypeScript
-*   **UI 组件库**: [Ant Design](https://ant.design/)
-*   **样式**: [Tailwind CSS](https://tailwindcss.com/)
+*   **UI 组件库**: [Ant Design 5](https://ant.design/)
+*   **样式**: [Tailwind CSS 4](https://tailwindcss.com/)
+*   **状态管理**: [Zustand 5](https://github.com/pmndrs/zustand)
 *   **数据库 ORM**: [Prisma](https://www.prisma.io/)
 *   **数据库**: SQLite (默认) / PostgreSQL (生产环境推荐)
-*   **认证**: NextAuth.js
+*   **认证**: [NextAuth.js v5](https://authjs.dev/)
 *   **存储**: 阿里云 OSS (Aliyun Object Storage Service)
 *   **国际化**: next-i18next / react-i18next
 
@@ -112,6 +119,12 @@ pnpm dev
 4.  **初始化**
     *   部署完成后，在编排列表中找到 `migrate` 服务并点击“启动”，等待运行完成后即可停止。这将自动执行数据库迁移和种子数据填充。
 
+5.  **手动初始化**
+    *   如果需要手动初始化数据库，请在survey-frontend 容器执行以下命令：
+    ```bash
+    npx prisma@5.22.0 migrate dev
+    npx tsx@4.20.6 db:seed
+
 ## 📂 目录结构
 
 ```
@@ -144,21 +157,3 @@ pnpm dev
 
 MIT
 
-### 4) Start app
-```powershell
-docker compose up -d
-```
-
-### 5) Check logs and open
-```powershell
-docker compose logs -f survey-app
-```
-Visit http://localhost:3000
-
-Default admin account (from seed):
-- Username: `admin`
-- Password: `admin123`
-
-### Notes
-- Volumes persisted locally: `sqlite_data` (SQLite DB), `uploads` (uploaded files), `qrcodes` (generated QR images).
-- Change `NEXTAUTH_SECRET` in `docker-compose.yml` or copy `.env.example` to `.env` and set your own values for local use.

@@ -5,13 +5,14 @@ const prisma = new PrismaClient()
 
 async function main() {
   // 优先从环境变量获取密码，否则使用默认强密码
-  const password = process.env.ADMIN_PASSWORD || 'SurveyAdmin@2025!'
+  const password = process.env.ADMIN_PASSWORD
   const hashedPassword = await bcrypt.hash(password, 10)
   
   await prisma.admin.upsert({
     where: { username: 'admin' },
     update: {
-      role: 'SUPER_ADMIN'
+      role: 'SUPER_ADMIN',
+      password: hashedPassword, // 更新密码，确保环境变量生效
     },
     create: {
       username: 'admin',
