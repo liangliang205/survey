@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { Table, Button, Popconfirm, message, Space } from 'antd'
-import { EyeOutlined, QrcodeOutlined, DeleteOutlined } from '@ant-design/icons'
+import { EyeOutlined, QrcodeOutlined, DeleteOutlined, UndoOutlined } from '@ant-design/icons'
 import { deleteSurvey } from '@/action/delete-survey'
+import { restoreSurvey } from '@/action/restore-survey'
+import { permanentDeleteSurvey } from '@/action/permanent-delete-survey'
 import SurveyPreviewDrawer from './survey-preview-drawer'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/navigation'
 
-export default function SurveyList({ refreshFlag, onSelect }: { refreshFlag: number; onSelect?: (survey: any) => void }) {
+export default function SurveyList({ refreshFlag, onSelect, deleted = false }: { refreshFlag: number; onSelect?: (survey: any) => void; deleted?: boolean }) {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState<any[]>([])
@@ -17,7 +19,7 @@ export default function SurveyList({ refreshFlag, onSelect }: { refreshFlag: num
   // 获取列表
   useEffect(() => {
     setLoading(true)
-    fetch('/api/admin/surveys')
+    fetch(`/api/admin/surveys?deleted=${deleted}`)
       .then(async (r) => {
         if (r.ok) {
           const list = await r.json()
@@ -43,6 +45,26 @@ export default function SurveyList({ refreshFlag, onSelect }: { refreshFlag: num
       setData((prev) => prev.filter((s) => s.id !== id))
     } else {
       message.error(res.error || t('message.creation_failed'))
+    }
+  }
+
+  const handleRestore = async (id: string) => {
+    const res = await restoreSurvey(id)
+    if (res.success) {
+      message.success('已恢复')
+      setData((prev) => prev.filter((s) => s.id !== id))
+    } else {
+      message.error(res.error || '恢复失败')
+    }
+  }
+
+  const handlePermanentDelete = async (id: string) => {
+    const res = await permanentDeleteSurvey(id)
+    if (res.success) {
+      message.success('已彻底删除')
+      setData((prev) => prev.filter((s) => s.id !== id))
+    } else {
+      message.error(res.error || '删除失败')
     }
   }
   const [previewId, setPreviewId] = useState<string | null>(null)
@@ -85,7 +107,30 @@ export default function SurveyList({ refreshFlag, onSelect }: { refreshFlag: num
       key: 'action',
       width: 260,
       className: 'text-nowrap',
-      render: (_: unknown, record: SurveyRow) => (
+      render: (_: unknown, record: SurveyRow) => {
+        if (deleted) {
+          return (
+            <Space size="middle" wrap>
+              <Button
+                icon={<UndoOutlined />}
+                size="middle"
+                className="px-4"
+                onClick={() => handleRestore(record.id)}
+              >
+                恢复
+              </Button>
+              <Popconfirm
+                title="确定彻底删除吗？此操作不可恢复。"
+                onConfirm={() => handlePermanentDelete(record.id)}
+                okText={t('yes')}
+                cancelText={t('no')}
+              >
+                <Button danger icon={<DeleteOutlined />} size="middle" className="px-4">彻底删除</Button>
+              </Popconfirm>
+            </Space>
+          )
+        }
+        return (
         <Space size="middle" wrap>
           <Button
             icon={<EyeOutlined />}
@@ -121,7 +166,7 @@ export default function SurveyList({ refreshFlag, onSelect }: { refreshFlag: num
             <Button danger icon={<DeleteOutlined />} size="middle" className="px-4" />
           </Popconfirm>
         </Space>
-      ),
+      )},
     },
   ]
 

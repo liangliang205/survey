@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import SurveyList from '@/components/admin/survey-list'
 import { SurveyEditor } from '@/components/admin/survey-editor'
-import { Button, message, Divider } from 'antd'
+import { Button, message, Divider, Tabs } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { saveSurvey } from '@/action/save-survey'
 import { useTranslation } from 'next-i18next'
@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [selectedSurvey, setSelectedSurvey] = useState<any | null>(null)
   const [editingSurvey, setEditingSurvey] = useState<any | null>(null)
   const [refreshFlag, setRefreshFlag] = useState(0) // 触发 SurveyList 刷新
+  const [activeTab, setActiveTab] = useState('active')
 
   const createNewSurvey = async () => {
     const result = await saveSurvey(null, {
@@ -42,13 +43,34 @@ export default function AdminPage() {
           </Button> */}
         </div>
 
-        {/* 👉 This is the new table */}
-        <SurveyList
-          refreshFlag={refreshFlag}
-          onSelect={(s) => {
-            setSelectedSurvey(s)
-            setEditingSurvey(s)
-          }}
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={[
+            {
+              key: 'active',
+              label: '所有问卷',
+              children: (
+                <SurveyList
+                  refreshFlag={refreshFlag}
+                  onSelect={(s) => {
+                    setSelectedSurvey(s)
+                    setEditingSurvey(s)
+                  }}
+                />
+              ),
+            },
+            {
+              key: 'deleted',
+              label: '回收站',
+              children: (
+                <SurveyList
+                  refreshFlag={refreshFlag}
+                  deleted={true}
+                />
+              ),
+            },
+          ]}
         />
 
         <Divider dashed />
@@ -59,9 +81,7 @@ export default function AdminPage() {
         <SurveyEditor
           survey={selectedSurvey}
           onSave={() => {
-            setRefreshFlag((v) => v + 1)
-            setSelectedSurvey(null)
-            setEditingSurvey(null)
+            window.location.reload()
           }}
         />
       </div>

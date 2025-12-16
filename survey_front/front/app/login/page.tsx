@@ -18,7 +18,7 @@ export default function LoginPage() {
         redirect: false,
       })
 
-      if (res?.ok) {
+      if (res?.ok && !res?.error) {
         message.success('登录成功')
         router.push('/admin')
         router.refresh()
