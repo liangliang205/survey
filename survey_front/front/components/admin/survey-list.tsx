@@ -35,7 +35,7 @@ export default function SurveyList({ refreshFlag, onSelect, deleted = false }: {
       })
       .catch(() => setData([]))
       .finally(() => setLoading(false))
-  }, [refreshFlag])
+  }, [refreshFlag, deleted])
 
   const handleDelete = async (id: string) => {
     const res = await deleteSurvey(id)

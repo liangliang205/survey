@@ -45,7 +45,10 @@ export default function AdminPage() {
 
         <Tabs
           activeKey={activeTab}
-          onChange={setActiveTab}
+          onChange={(key) => {
+            setActiveTab(key)
+            setRefreshFlag((v) => v + 1)
+          }}
           items={[
             {
               key: 'active',
