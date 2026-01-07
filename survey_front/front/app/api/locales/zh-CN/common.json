@@ -154,5 +154,9 @@
   "replace_image": "重新上传",
   "remove_image": "移除图片",
   "upload_image_hint": "请上传图片（JPG/PNG/WebP）",
-  "only_image_supported": "仅支持图片文件"
+  "only_image_supported": "仅支持图片文件",
+  "example_image": "示例图片",
+  "image_library": "图片库",
+  "reload": "刷新",
+  "copy_link": "复制链接"
 }

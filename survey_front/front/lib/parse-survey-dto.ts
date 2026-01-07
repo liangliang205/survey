@@ -18,6 +18,7 @@ export const SaveSurveyDto = z.object({
         order: z.number().int().default(0),
         required: z.boolean().default(true),
         placeholder: z.string().optional(),
+        exampleImage: z.string().url().optional(),
         options: z
           .array(
             z.object({

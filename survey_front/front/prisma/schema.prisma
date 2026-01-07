@@ -72,6 +72,7 @@ model UserInfoField {
   required    Boolean  @default(true)
   order       Int      @default(0)
   placeholder String?
+  exampleImage String?
   createdAt   DateTime @default(now())
 
   @@index([surveyId])
@@ -83,6 +84,7 @@ model Question {
   survey      Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   title       String
   type        String // radio, checkbox, text, rating, date
+  exampleImage String?
   options     Option[]
   order       Int      @default(0)
   required    Boolean  @default(true)

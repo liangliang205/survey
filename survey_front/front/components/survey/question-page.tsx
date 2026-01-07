@@ -1,7 +1,7 @@
 'use client'
 
 import { useSurveyStore } from './survey-context'
-import { Button, Radio, Checkbox, Input, Rate, Upload, message } from 'antd'
+import { Button, Radio, Checkbox, Input, Rate, Upload, message, Image } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import { submitAnswers } from '@/action/submit-survey'
@@ -78,62 +78,83 @@ export function QuestionPage() {
 
         case 'image':
           if (typeof value !== 'string') value = ''
+          const hasExample = !!question.exampleImage
           return (
-            <div className="space-y-2">
-              {value ? (
-                <div className="border rounded-lg overflow-hidden">
-                  <img src={value} alt={question.title} className="w-full h-48 object-cover" />
-                </div>
-              ) : (
-                <div className="h-48 border border-dashed rounded-lg flex items-center justify-center text-gray-400">
-                  {t('upload_image_hint')}
+            <div className="flex flex-row gap-4 items-start flex-nowrap text-center">
+              {hasExample && (
+                <div className="border rounded-lg overflow-hidden basis-1/2 flex-1 bg-white shadow-sm min-w-0">
+                  <Image
+                    src={question.exampleImage}
+                    alt={t('example_image')}
+                    preview={{ mask: t('preview_image', { defaultValue: '点击放大查看' }) }}
+                    rootClassName="block w-full h-48"
+                    className="!w-full !h-full object-cover"
+                  />
+                  <div className="px-3 py-2 text-sm text-gray-600 bg-gray-50 font-medium">{t('example_image')}</div>
                 </div>
               )}
-              <Upload
-                name="file"
-                accept="image/*"
-                showUploadList={false}
-                action="/api/upload/public"
-                onChange={(info) => {
-                  if (info.file.status === 'uploading') {
-                    setUploading(prev => ({ ...prev, [question.id]: true }))
-                  }
-                  if (info.file.status === 'done') {
-                    const url = (info.file.response as any)?.url
-                    setUploading(prev => ({ ...prev, [question.id]: false }))
-                    if (url) {
-                      setAnswer(question.id, url)
-                      message.success(t('message.upload_success'))
-                    } else {
+              <div className={`${hasExample ? 'basis-1/2 flex-1 min-w-0' : 'w-full'} space-y-3`}>
+                {value ? (
+                  <div className="border rounded-lg overflow-hidden shadow-sm">
+                    <Image
+                      src={value}
+                      alt={question.title}
+                      preview={{ mask: t('preview_image', { defaultValue: '点击放大查看' }) }}
+                      rootClassName="block w-full h-48"
+                      className="!w-full !h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="h-48 border border-dashed rounded-lg flex items-center justify-center text-gray-400 text-sm">
+                    {t('upload_image_hint')}
+                  </div>
+                )}
+                <Upload
+                  name="file"
+                  accept="image/*"
+                  showUploadList={false}
+                  action="/api/upload/public"
+                  onChange={(info) => {
+                    if (info.file.status === 'uploading') {
+                      setUploading(prev => ({ ...prev, [question.id]: true }))
+                    }
+                    if (info.file.status === 'done') {
+                      const url = (info.file.response as any)?.url
+                      setUploading(prev => ({ ...prev, [question.id]: false }))
+                      if (url) {
+                        setAnswer(question.id, url)
+                        message.success(t('message.upload_success'))
+                      } else {
+                        message.error(t('message.upload_failed'))
+                      }
+                    } else if (info.file.status === 'error') {
+                      setUploading(prev => ({ ...prev, [question.id]: false }))
                       message.error(t('message.upload_failed'))
                     }
-                  } else if (info.file.status === 'error') {
-                    setUploading(prev => ({ ...prev, [question.id]: false }))
-                    message.error(t('message.upload_failed'))
-                  }
-                }}
-                beforeUpload={(file) => {
-                  const isImage = file.type.startsWith('image/')
-                  if (!isImage) {
-                    message.error(t('only_image_supported'))
-                  }
-                  return isImage
-                }}
-              >
-                <Button icon={<UploadOutlined />} loading={!!uploading[question.id]}>
-                  {value ? t('replace_image') : t('upload_image')}
-                </Button>
-              </Upload>
-              {value && (
-                <Button
-                  type="link"
-                  danger
-                  className="p-0"
-                  onClick={() => setAnswer(question.id, '')}
+                  }}
+                  beforeUpload={(file) => {
+                    const isImage = file.type.startsWith('image/')
+                    if (!isImage) {
+                      message.error(t('only_image_supported'))
+                    }
+                    return isImage
+                  }}
                 >
-                  {t('remove_image')}
-                </Button>
-              )}
+                  <Button icon={<UploadOutlined />} loading={!!uploading[question.id]}>
+                    {value ? t('replace_image') : t('upload_image')}
+                  </Button>
+                </Upload>
+                {value && (
+                  <Button
+                    type="link"
+                    danger
+                    className="p-0"
+                    onClick={() => setAnswer(question.id, '')}
+                  >
+                    {t('remove_image')}
+                  </Button>
+                )}
+              </div>
             </div>
           )
 

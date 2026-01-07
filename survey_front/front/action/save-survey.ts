@@ -45,6 +45,7 @@ export async function saveSurvey(id: string | null, data: any) {
             required: field.required,
             order: field.order,
             placeholder: field.placeholder,
+            exampleImage: field.exampleImage,
           }))
         })
       }
@@ -82,6 +83,7 @@ export async function saveSurvey(id: string | null, data: any) {
               order: q.order,
               required: q.required,
               placeholder: q.placeholder,
+              exampleImage: q.exampleImage,
             }
           })
 
@@ -125,6 +127,7 @@ export async function saveSurvey(id: string | null, data: any) {
               order: q.order,
               required: q.required,
               placeholder: q.placeholder,
+              exampleImage: q.exampleImage,
               options: Array.isArray(q.options) && q.options.length > 0
                 ? { create: q.options.map((opt: any, idx: number) => ({ value: opt.value, order: typeof opt.order === 'number' ? opt.order : idx })) }
                 : undefined,
@@ -171,6 +174,7 @@ export async function saveSurvey(id: string | null, data: any) {
             required: field.required,
             order: field.order,
             placeholder: field.placeholder,
+            exampleImage: field.exampleImage,
           }))
         })
       }
@@ -185,6 +189,7 @@ export async function saveSurvey(id: string | null, data: any) {
             order: question.order,
             required: question.required,
             placeholder: question.placeholder,
+            exampleImage: question.exampleImage,
             options: question.options && question.options.length > 0
               ? {
                   create: question.options.map((opt: any, optIndex: number) => ({

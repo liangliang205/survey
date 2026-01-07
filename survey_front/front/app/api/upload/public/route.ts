@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     .toLowerCase()
     .replace(/[^a-z0-9-_]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'image'
-  const filename = `${Date.now()}-${base}${ext}`
+  const filename = `survey/${Date.now()}-${base}${ext}`
 
   const ossClient = getOSSClient()
   if (!ossClient) {

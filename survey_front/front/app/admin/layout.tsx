@@ -1,7 +1,7 @@
 'use client'
 
 import { Layout, Menu, Dropdown, Button } from 'antd'
-import { UserOutlined, FormOutlined, QrcodeOutlined, BarChartOutlined, DownOutlined, SettingOutlined } from '@ant-design/icons'
+import { UserOutlined, FormOutlined, QrcodeOutlined, BarChartOutlined, DownOutlined, SettingOutlined, PictureOutlined } from '@ant-design/icons'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
@@ -61,6 +61,11 @@ export default function AdminLayout({
       icon: <QrcodeOutlined />,
       label: <Link href="/admin/qrcode">{t('qrcode')}</Link>,
     },
+    {
+      key: 'uploads',
+      icon: <PictureOutlined />,
+      label: <Link href="/admin/uploads">{t('image_library') || 'Images'}</Link>,
+    },
        {
       key: 'settings',
       icon: <SettingOutlined />,
@@ -90,6 +95,8 @@ export default function AdminLayout({
       setSelectedKey('data')
     } else if (pathname.startsWith('/admin/qrcode')) {
       setSelectedKey('qrcode')
+    } else if (pathname.startsWith('/admin/uploads')) {
+      setSelectedKey('uploads')
     } else if (pathname.startsWith('/admin/settings')) {
       setSelectedKey('settings')
     } else {

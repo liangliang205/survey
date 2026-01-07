@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     .toLowerCase()
     .replace(/[^a-z0-9-_]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'file'
-  const filename = `${Date.now()}-${base}${ext}`
+  const filename = `admin/${Date.now()}-${base}${ext}`
 
   // 尝试使用 OSS 上传
   const ossClient = getOSSClient()

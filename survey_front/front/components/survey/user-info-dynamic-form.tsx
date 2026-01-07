@@ -178,66 +178,75 @@ export function UserInfoDynamicForm() {
                     }
                     if (field.type === 'image') {
                       const currentUrl = controllerField.value as string
+                      const hasExample = !!field.exampleImage
                       return (
-                        <div className="space-y-2">
-                          {currentUrl ? (
-                            <div className="border rounded-lg overflow-hidden">
-                              <img src={currentUrl} alt={field.title} className="w-full h-40 object-cover" />
-                            </div>
-                          ) : (
-                            <div className="h-40 border border-dashed rounded-lg flex items-center justify-center text-gray-400">
-                              {t('upload_image_hint')}
+                        <div className="flex flex-row gap-4 items-start flex-wrap text-center">
+                          {hasExample && (
+                            <div className="border rounded-lg overflow-hidden w-1/2 min-w-[140px] flex-1 bg-white shadow-sm">
+                              <img src={field.exampleImage} alt={t('example_image')} className="w-full h-40 object-cover" />
+                              <div className="px-3 py-2 text-sm text-gray-600 bg-gray-50 font-medium">{t('example_image')}</div>
                             </div>
                           )}
-                          <Upload
-                            name="file"
-                            accept="image/*"
-                            showUploadList={false}
-                            action="/api/upload/public"
-                            onChange={(info) => {
-                              if (info.file.status === 'uploading') {
-                                setUploading(prev => ({ ...prev, [field.id]: true }))
-                              }
-                              if (info.file.status === 'done') {
-                                const url = (info.file.response as any)?.url
-                                setUploading(prev => ({ ...prev, [field.id]: false }))
-                                if (url) {
-                                  controllerField.onChange(url)
-                                  handleFieldChange(field.id, url)
-                                  message.success(t('message.upload_success'))
-                                } else {
+                          <div className={`${hasExample ? 'w-1/2 min-w-[160px] flex-1' : 'w-full'} space-y-3`}>
+                            {currentUrl ? (
+                              <div className="border rounded-lg overflow-hidden shadow-sm">
+                                <img src={currentUrl} alt={field.title} className="w-full h-40 object-cover" />
+                              </div>
+                            ) : (
+                              <div className="h-40 border border-dashed rounded-lg flex items-center justify-center text-gray-400 text-sm">
+                                {t('upload_image_hint')}
+                              </div>
+                            )}
+                            <Upload
+                              name="file"
+                              accept="image/*"
+                              showUploadList={false}
+                              action="/api/upload/public"
+                              onChange={(info) => {
+                                if (info.file.status === 'uploading') {
+                                  setUploading(prev => ({ ...prev, [field.id]: true }))
+                                }
+                                if (info.file.status === 'done') {
+                                  const url = (info.file.response as any)?.url
+                                  setUploading(prev => ({ ...prev, [field.id]: false }))
+                                  if (url) {
+                                    controllerField.onChange(url)
+                                    handleFieldChange(field.id, url)
+                                    message.success(t('message.upload_success'))
+                                  } else {
+                                    message.error(t('message.upload_failed'))
+                                  }
+                                } else if (info.file.status === 'error') {
+                                  setUploading(prev => ({ ...prev, [field.id]: false }))
                                   message.error(t('message.upload_failed'))
                                 }
-                              } else if (info.file.status === 'error') {
-                                setUploading(prev => ({ ...prev, [field.id]: false }))
-                                message.error(t('message.upload_failed'))
-                              }
-                            }}
-                            beforeUpload={(file) => {
-                              const isImage = file.type.startsWith('image/')
-                              if (!isImage) {
-                                message.error(t('only_image_supported'))
-                              }
-                              return isImage
-                            }}
-                          >
-                            <Button icon={<UploadOutlined />} loading={!!uploading[field.id]}>
-                              {currentUrl ? t('replace_image') : t('upload_image')}
-                            </Button>
-                          </Upload>
-                          {currentUrl && (
-                            <Button
-                              type="link"
-                              danger
-                              onClick={() => {
-                                controllerField.onChange('')
-                                handleFieldChange(field.id, '')
                               }}
-                              className="p-0"
+                              beforeUpload={(file) => {
+                                const isImage = file.type.startsWith('image/')
+                                if (!isImage) {
+                                  message.error(t('only_image_supported'))
+                                }
+                                return isImage
+                              }}
                             >
-                              {t('remove_image')}
-                            </Button>
-                          )}
+                              <Button icon={<UploadOutlined />} loading={!!uploading[field.id]}>
+                                {currentUrl ? t('replace_image') : t('upload_image')}
+                              </Button>
+                            </Upload>
+                            {currentUrl && (
+                              <Button
+                                type="link"
+                                danger
+                                onClick={() => {
+                                  controllerField.onChange('')
+                                  handleFieldChange(field.id, '')
+                                }}
+                                className="p-0"
+                              >
+                                {t('remove_image')}
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       )
                     }

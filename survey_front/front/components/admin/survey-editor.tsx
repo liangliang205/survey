@@ -24,6 +24,7 @@ interface QuestionInput {
   order: number
   required: boolean
   placeholder?: string
+  exampleImage?: string
 }
 
 interface UserInfoFieldInput {
@@ -33,6 +34,7 @@ interface UserInfoFieldInput {
   required: boolean
   order: number
   placeholder?: string
+  exampleImage?: string
 }
 
 interface SurveyEditorProps {
@@ -51,6 +53,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
   const [imageList, setImageList] = useState<string[]>([])
   const [imageLoading, setImageLoading] = useState(false)
   const [currentImageField, setCurrentImageField] = useState<string>('')
+  const [imageSelectContext, setImageSelectContext] = useState<{ type: 'field' | 'questionExample' | 'userInfoExample'; index?: number }>({ type: 'field' })
   const [surveyMode, setSurveyMode] = useState<'normal' | 'redirect'>('normal')
   const [supportMode, setSupportMode] = useState<'default' | 'link'>('default')
   const { t } = useTranslation() // 添加这一行来获取 t 函数
@@ -61,7 +64,20 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
       const res = await fetch('/api/admin/uploads/list')
       const data = await res.json()
       if (data.files) {
-        setImageList(data.files)
+        // Only return clean public URLs for the editor selector, remove query params (signatures)
+        // We assume the bucket is public-read for the survey-facing images to work permanently
+        // But the list API returns signed URLs. We need to strip signature for permanent storage in DB
+        // unless the bucket is private, making permanent URLs impossible without a proxy.
+        // Assuming public-read bucket for survey assets:
+        const cleanUrls = data.files.map((url: string) => {
+          try {
+             const u = new URL(url)
+             return `${u.origin}${u.pathname}`
+          } catch {
+             return url
+          }
+        })
+        setImageList(cleanUrls)
       }
     } catch (error) {
       message.error(t('message.load_failed'))
@@ -72,12 +88,31 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
 
   const openImageSelector = (field: string) => {
     setCurrentImageField(field)
+    setImageSelectContext({ type: 'field' })
+    fetchImages()
+    setIsImageModalOpen(true)
+  }
+
+  const openImageSelectorForQuestionExample = (index: number) => {
+    setImageSelectContext({ type: 'questionExample', index })
+    fetchImages()
+    setIsImageModalOpen(true)
+  }
+
+  const openImageSelectorForUserInfoExample = (index: number) => {
+    setImageSelectContext({ type: 'userInfoExample', index })
     fetchImages()
     setIsImageModalOpen(true)
   }
 
   const handleSelectImage = (url: string) => {
-    form.setFieldValue(currentImageField, url)
+    if (imageSelectContext.type === 'questionExample' && typeof imageSelectContext.index === 'number') {
+      updateQuestion(imageSelectContext.index, { exampleImage: url })
+    } else if (imageSelectContext.type === 'userInfoExample' && typeof imageSelectContext.index === 'number') {
+      updateUserInfoField(imageSelectContext.index, { exampleImage: url })
+    } else {
+      form.setFieldValue(currentImageField, url)
+    }
     setIsImageModalOpen(false)
   }
 
@@ -106,6 +141,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
           order: q.order,
           required: q.required,
           placeholder: q.placeholder,
+          exampleImage: q.exampleImage,
         }))
       )
       
@@ -118,6 +154,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
           required: f.required,
           order: f.order,
           placeholder: f.placeholder,
+          exampleImage: f.exampleImage,
         })) || []
       )
       
@@ -133,6 +170,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
             order: q.order,
             required: q.required,
             placeholder: q.placeholder,
+            exampleImage: q.exampleImage,
           })),
           userInfoFields: survey.userInfoFields?.map((f: any) => ({
             id: f.id,
@@ -141,6 +179,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
             required: f.required,
             order: f.order,
             placeholder: f.placeholder,
+            exampleImage: f.exampleImage,
           })) || []
         })
       }
@@ -163,6 +202,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
       order: questions.length,
       required: true,
       placeholder: '',
+      exampleImage: '',
     }
     const updated = [...questions, newQuestion]
     setQuestions(updated)
@@ -235,6 +275,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
       required: true,
       order: userInfoFields.length,
       placeholder: '',
+      exampleImage: '',
     }
     const updated = [...userInfoFields, newField]
     setUserInfoFields(updated)
@@ -642,6 +683,81 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
                           placeholder={t('placeholder')}
                         />
                       </Form.Item>
+
+                      {field.type === 'image' && (
+                        <div className="md:col-span-2 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-sm">{t('example_image')}</span>
+                            <div className="flex gap-2">
+                              <Button icon={<AppstoreOutlined />} onClick={() => openImageSelectorForUserInfoExample(index)}>
+                                {t('select_existing')}
+                              </Button>
+                              <Upload
+                                name="file"
+                                accept="image/*"
+                                showUploadList={false}
+                                action="/api/upload"
+                                onChange={(info) => {
+                                  if (info.file.status === 'done') {
+                                    const url = (info.file.response as any)?.url
+                                    if (url) {
+                                      updateUserInfoField(index, { exampleImage: url })
+                                      message.success(t('message.upload_success'))
+                                    } else {
+                                      message.error(t('message.upload_failed'))
+                                    }
+                                  } else if (info.file.status === 'error') {
+                                    message.error(t('message.upload_failed'))
+                                  }
+                                }}
+                                beforeUpload={(file) => {
+                                  const isImage = file.type.startsWith('image/')
+                                  if (!isImage) {
+                                    message.error(t('only_image_supported'))
+                                  }
+                                  return isImage
+                                }}
+                              >
+                                <Button icon={<PictureOutlined />}>{t('upload_image')}</Button>
+                              </Upload>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+                            <div className="space-y-2">
+                              <Input
+                                value={field.exampleImage}
+                                onChange={e => updateUserInfoField(index, { exampleImage: e.target.value })}
+                                placeholder={t('upload_image_hint')}
+                              />
+                              <div className="text-xs text-gray-500">{t('example_image')}</div>
+                            </div>
+                            <div className="border rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+                              {field.exampleImage ? (
+                                <AntImage
+                                  src={field.exampleImage}
+                                  alt={t('example_image')}
+                                  preview={false}
+                                  style={{ width: '100%', height: 160, objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <div className="text-gray-400 text-sm">{t('upload_image_hint')}</div>
+                              )}
+                            </div>
+                          </div>
+                          {field.exampleImage && (
+                            <div className="flex justify-end">
+                              <Button
+                                type="link"
+                                danger
+                                className="p-0"
+                                onClick={() => updateUserInfoField(index, { exampleImage: '' })}
+                              >
+                                {t('remove_image')}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </Card>
                 ))}
@@ -803,6 +919,81 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
                             placeholder={t('text_placeholder')}
                           />
                         </Form.Item>
+                      )}
+
+                      {question.type === 'image' && (
+                        <div className="md:col-span-2 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-sm">{t('example_image')}</span>
+                            <div className="flex gap-2">
+                              <Button icon={<AppstoreOutlined />} onClick={() => openImageSelectorForQuestionExample(index)}>
+                                {t('select_existing')}
+                              </Button>
+                              <Upload
+                                name="file"
+                                accept="image/*"
+                                showUploadList={false}
+                                action="/api/upload"
+                                onChange={(info) => {
+                                  if (info.file.status === 'done') {
+                                    const url = (info.file.response as any)?.url
+                                    if (url) {
+                                      updateQuestion(index, { exampleImage: url })
+                                      message.success(t('message.upload_success'))
+                                    } else {
+                                      message.error(t('message.upload_failed'))
+                                    }
+                                  } else if (info.file.status === 'error') {
+                                    message.error(t('message.upload_failed'))
+                                  }
+                                }}
+                                beforeUpload={(file) => {
+                                  const isImage = file.type.startsWith('image/')
+                                  if (!isImage) {
+                                    message.error(t('only_image_supported'))
+                                  }
+                                  return isImage
+                                }}
+                              >
+                                <Button icon={<PictureOutlined />}>{t('upload_image')}</Button>
+                              </Upload>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+                            <div className="space-y-2">
+                              <Input
+                                value={question.exampleImage}
+                                onChange={e => updateQuestion(index, { exampleImage: e.target.value })}
+                                placeholder={t('upload_image_hint')}
+                              />
+                              <div className="text-xs text-gray-500">{t('example_image')}</div>
+                            </div>
+                            <div className="border rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+                              {question.exampleImage ? (
+                                <AntImage
+                                  src={question.exampleImage}
+                                  alt={t('example_image')}
+                                  preview={false}
+                                  style={{ width: '100%', height: 180, objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <div className="text-gray-400 text-sm">{t('upload_image_hint')}</div>
+                              )}
+                            </div>
+                          </div>
+                          {question.exampleImage && (
+                            <div className="flex justify-end">
+                              <Button
+                                type="link"
+                                danger
+                                className="p-0"
+                                onClick={() => updateQuestion(index, { exampleImage: '' })}
+                              >
+                                {t('remove_image')}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       )}
                       
                       <Form.Item label={t('required')} className="md:col-span-2">
