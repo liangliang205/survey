@@ -14,7 +14,7 @@ export const SaveSurveyDto = z.object({
       z.object({
         id: z.string().optional(),        // 编辑时有值
         title: z.string().min(1),
-        type: z.enum(['radio', 'checkbox', 'text', 'rating', 'date']),
+        type: z.enum(['radio', 'checkbox', 'text', 'rating', 'date', 'image']),
         order: z.number().int().default(0),
         required: z.boolean().default(true),
         placeholder: z.string().optional(),

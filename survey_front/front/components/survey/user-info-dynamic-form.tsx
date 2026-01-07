@@ -2,7 +2,8 @@
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input, Form, message } from 'antd'
+import { Button, Input, Form, Upload, message } from 'antd'
+import { UploadOutlined } from '@ant-design/icons'
 import { useSurveyStore } from './survey-context'
 import { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
@@ -50,6 +51,7 @@ export function UserInfoDynamicForm() {
   const setSubmissionId = useSurveyStore((state) => state.setSubmissionId)
   const [formData, setFormData] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState<Record<string, boolean>>({})
 
   // 动态创建验证 schema
   const dynamicSchema = useMemo<z.ZodObject<Record<string, z.ZodString>>>(() => {
@@ -172,6 +174,71 @@ export function UserInfoDynamicForm() {
                           ref={controllerField.ref}
                           error={errors[field.id]?.message as string}
                         />
+                      )
+                    }
+                    if (field.type === 'image') {
+                      const currentUrl = controllerField.value as string
+                      return (
+                        <div className="space-y-2">
+                          {currentUrl ? (
+                            <div className="border rounded-lg overflow-hidden">
+                              <img src={currentUrl} alt={field.title} className="w-full h-40 object-cover" />
+                            </div>
+                          ) : (
+                            <div className="h-40 border border-dashed rounded-lg flex items-center justify-center text-gray-400">
+                              {t('upload_image_hint')}
+                            </div>
+                          )}
+                          <Upload
+                            name="file"
+                            accept="image/*"
+                            showUploadList={false}
+                            action="/api/upload/public"
+                            onChange={(info) => {
+                              if (info.file.status === 'uploading') {
+                                setUploading(prev => ({ ...prev, [field.id]: true }))
+                              }
+                              if (info.file.status === 'done') {
+                                const url = (info.file.response as any)?.url
+                                setUploading(prev => ({ ...prev, [field.id]: false }))
+                                if (url) {
+                                  controllerField.onChange(url)
+                                  handleFieldChange(field.id, url)
+                                  message.success(t('message.upload_success'))
+                                } else {
+                                  message.error(t('message.upload_failed'))
+                                }
+                              } else if (info.file.status === 'error') {
+                                setUploading(prev => ({ ...prev, [field.id]: false }))
+                                message.error(t('message.upload_failed'))
+                              }
+                            }}
+                            beforeUpload={(file) => {
+                              const isImage = file.type.startsWith('image/')
+                              if (!isImage) {
+                                message.error(t('only_image_supported'))
+                              }
+                              return isImage
+                            }}
+                          >
+                            <Button icon={<UploadOutlined />} loading={!!uploading[field.id]}>
+                              {currentUrl ? t('replace_image') : t('upload_image')}
+                            </Button>
+                          </Upload>
+                          {currentUrl && (
+                            <Button
+                              type="link"
+                              danger
+                              onClick={() => {
+                                controllerField.onChange('')
+                                handleFieldChange(field.id, '')
+                              }}
+                              className="p-0"
+                            >
+                              {t('remove_image')}
+                            </Button>
+                          )}
+                        </div>
                       )
                     }
                     return (

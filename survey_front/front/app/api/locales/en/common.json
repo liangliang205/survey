@@ -17,6 +17,7 @@
   "text": "Text",
   "email": "Email",
   "phone": "Phone Number",
+  "image": "Image",
   "questions": "Questions",
   "add_question": "Add Question",
   "no_questions": "No questions, click the button above to add",
@@ -60,6 +61,7 @@
   "enter_phone": "Please enter your phone number",
   "enter_email": "Please enter your email",
   "enter_department": "Please enter your department",
+  "text_placeholder": "Please enter content",
   "next": "Next",
   "question_not_found": "Question not found",
   "question_progress": "Question {{current}} / {{total}}",
@@ -120,5 +122,10 @@
   "message.update_success": "Updated successfully",
   "message.create_success": "Created successfully",
   "message.update_failed": "Failed to update",
-  "message.create_failed": "Failed to create"
+  "message.create_failed": "Failed to create",
+  "upload_image": "Upload Image",
+  "replace_image": "Replace Image",
+  "remove_image": "Remove Image",
+  "upload_image_hint": "Upload an image (JPG/PNG/WebP)",
+  "only_image_supported": "Only image files are supported"
 }

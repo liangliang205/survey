@@ -14,7 +14,7 @@ export type SurveyWithQuestions = Survey & {
 export type UserInfoField = {
   id: string
   title: string
-  type: string
+  type: 'text' | 'email' | 'phone' | 'image'
   required: boolean
   order: number
   placeholder?: string | null

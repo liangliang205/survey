@@ -19,7 +19,7 @@ interface OptionInput {
 interface QuestionInput {
   id?: string
   title: string
-  type: 'radio' | 'checkbox' | 'text' | 'rating'
+  type: 'radio' | 'checkbox' | 'text' | 'rating' | 'image'
   options: OptionInput[]
   order: number
   required: boolean
@@ -29,7 +29,7 @@ interface QuestionInput {
 interface UserInfoFieldInput {
   id?: string
   title: string
-  type: 'text' | 'email' | 'phone'
+  type: 'text' | 'email' | 'phone' | 'image'
   required: boolean
   order: number
   placeholder?: string
@@ -624,6 +624,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
                           <Option value="text">{t('text')}</Option>
                           <Option value="email">{t('email')}</Option>
                           <Option value="phone">{t('phone')}</Option>
+                          <Option value="image">{t('image')}</Option>
                         </Select>
                       </Form.Item>
                       
@@ -745,6 +746,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
                           <Option value="checkbox">{t('checkbox')}</Option>
                           <Option value="text">{t('text')}</Option>
                           <Option value="rating">{t('rating')}</Option>
+                          <Option value="image">{t('image')}</Option>
                         </Select>
                       </Form.Item>
                       
@@ -793,7 +795,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
                         </div>
                       )}
                       
-                      {question.type === 'text' && (
+                      {(question.type === 'text' || question.type === 'image') && (
                         <Form.Item label={t('placeholder')} className="md:col-span-2">
                           <Input
                             value={question.placeholder}

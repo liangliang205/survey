@@ -17,6 +17,7 @@
   "text": "文本",
   "email": "邮箱",
   "phone": "手机号",
+  "image": "图片",
   "questions": "问题",
   "add_question": "添加问题",
   "no_questions": "暂无问题，点击上方按钮添加",
@@ -67,6 +68,7 @@
   "enter_phone": "请输入手机号",
   "enter_email": "请输入邮箱",
   "enter_department": "请输入部门",
+  "text_placeholder": "请输入内容",
   "next": "下一步",
   "question_not_found": "未找到该题目",
   "question_progress": "问题 {{current}} / {{total}}",
@@ -147,5 +149,10 @@
   "message.upload_success": "上传成功",
   "message.upload_failed": "上传失败",
   "validation.app_name_required": "请输入应用名称！",
-  "validation.app_desc_required": "请输入应用描述！"
+  "validation.app_desc_required": "请输入应用描述！",
+  "upload_image": "上传图片",
+  "replace_image": "重新上传",
+  "remove_image": "移除图片",
+  "upload_image_hint": "请上传图片（JPG/PNG/WebP）",
+  "only_image_supported": "仅支持图片文件"
 }
