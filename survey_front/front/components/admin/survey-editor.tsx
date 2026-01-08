@@ -61,7 +61,7 @@ export function SurveyEditor({ survey, onSave, onChange }: SurveyEditorProps) {
   const fetchImages = async () => {
     setImageLoading(true)
     try {
-      const res = await fetch('/api/admin/uploads/list')
+      const res = await fetch('/api/admin/uploads/list?scope=uploads')
       const data = await res.json()
       if (data.files) {
         // Only return clean public URLs for the editor selector, remove query params (signatures)
