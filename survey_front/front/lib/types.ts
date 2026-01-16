@@ -1,4 +1,11 @@
-import type { Survey, Question, Option, Submission, Answer } from '@prisma/client'
+import type {
+  Survey,
+  Question,
+  Option,
+  Submission,
+  Answer,
+  UserInfoField as PrismaUserInfoField
+} from '@prisma/client'
 
 // 带问题的问卷类型（包含嵌套的选项）
 export type SurveyWithQuestions = Survey & {
@@ -10,16 +17,8 @@ export type SurveyWithQuestions = Survey & {
   userInfoFields: UserInfoField[]
 }
 
-// 用户信息字段类型
-export type UserInfoField = {
-  id: string
-  title: string
-  type: 'text' | 'email' | 'phone' | 'image'
-  required: boolean
-  order: number
-  placeholder?: string | null
-  exampleImage?: string | null
-}
+// 用户信息字段类型（直接使用 Prisma 类型，确保与数据库保持一致）
+export type UserInfoField = PrismaUserInfoField
 
 // 用户信息类型（与 Zod schema 保持一致）
 export interface UserInfo {

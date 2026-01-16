@@ -179,11 +179,12 @@ export function UserInfoDynamicForm() {
                     if (field.type === 'image') {
                       const currentUrl = controllerField.value as string
                       const hasExample = !!field.exampleImage
+                      const exampleImageSrc = field.exampleImage ?? undefined
                       return (
                         <div className="flex flex-row gap-4 items-start flex-wrap text-center">
                           {hasExample && (
                             <div className="border rounded-lg overflow-hidden w-1/2 min-w-[140px] flex-1 bg-white shadow-sm">
-                              <img src={field.exampleImage} alt={t('example_image')} className="w-full h-40 object-cover" />
+                              <img src={exampleImageSrc} alt={t('example_image')} className="w-full h-40 object-cover" />
                               <div className="px-3 py-2 text-sm text-gray-600 bg-gray-50 font-medium">{t('example_image')}</div>
                             </div>
                           )}

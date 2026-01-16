@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
-import { join, normalize } from 'path'
 import { readFile, stat } from 'fs/promises'
+import path from 'node:path'
+
+const QR_ROOT_PATH = path.join(process.cwd(), 'public', 'qrcodes')
 
 const MIME_MAP: Record<string, string> = {
   '.png': 'image/png',
@@ -17,20 +19,40 @@ function getMime(filename: string) {
   return MIME_MAP[filename.slice(dot).toLowerCase()] || 'application/octet-stream'
 }
 
-export async function GET(_req: Request, ctx: { params: { path: string[] } }) {
+function sanitizeSegment(segment: string) {
+  return segment.replace(/[^A-Za-z0-9._-]/g, '')
+}
+
+function resolveQrPath(segments: string[] = []) {
+  const safeSegments = segments
+    .filter(Boolean)
+    .map(sanitizeSegment)
+    .filter(Boolean)
+  if (safeSegments.some(segment => segment.includes('..'))) {
+    throw new Error('Invalid path')
+  }
+
+  const relativePath = safeSegments.join(path.sep)
+  const filePath = path.resolve(QR_ROOT_PATH, relativePath)
+  const rootWithSep = QR_ROOT_PATH.endsWith(path.sep)
+    ? QR_ROOT_PATH
+    : `${QR_ROOT_PATH}${path.sep}`
+  if (filePath !== QR_ROOT_PATH && !filePath.startsWith(rootWithSep)) {
+    throw new Error('Forbidden')
+  }
+  return filePath
+}
+
+export async function GET(_req: Request, ctx: { params: { path?: string[] } }) {
   try {
-    const safeSegments = ctx.params.path.filter(Boolean).map(seg => seg.replace(/[\\/]/g, ''))
-    const rel = safeSegments.join('/')
-    const abs = normalize(join(process.cwd(), 'public', 'qrcodes', rel))
-    const root = normalize(join(process.cwd(), 'public', 'qrcodes'))
-    if (!abs.startsWith(root)) return new NextResponse('Forbidden', { status: 403 })
-    const st = await stat(abs)
+    const filePath = resolveQrPath(ctx.params.path)
+    const st = await stat(filePath)
     if (!st.isFile()) return new NextResponse('Not Found', { status: 404 })
-    const data = await readFile(abs)
+    const data = await readFile(filePath)
     return new NextResponse(data, {
       status: 200,
       headers: {
-        'Content-Type': getMime(abs),
+        'Content-Type': getMime(filePath),
         'Cache-Control': 'public, max-age=31536000, immutable'
       }
     })

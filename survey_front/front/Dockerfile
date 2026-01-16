@@ -65,9 +65,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # 4. 复制 Prisma Schema 和迁移文件（用于运行时迁移或种子数据）
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# 修复：手动安装 seed 脚本所需的依赖（因为 standalone 模式未包含它们）
-RUN npm install bcryptjs tsx
-
 # 5. 复制入口脚本
 COPY --from=builder /app/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
